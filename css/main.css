@@ -1,0 +1,17 @@
+body
+{
+	margin-top:1em;
+}
+
+.superhide
+{
+	display:none;
+	height:1px;
+	overflow: hidden;
+}
+
+input.verysmall
+{
+	font-size:3px !important;
+	width:15px !important;
+}
