@@ -1,14 +1,11 @@
 <?php
 
+require_once "display.php";
+
 /**
- * Description of IndexDisplay
- *
- * @author Louis
+ * MainDisplat is in charge of displaying the main part of the KeePass UI.
  */
-
-require_once "keepassphp/display.php";
-
-class IndexDisplay extends Display
+class MainDisplay extends Display
 {
 	public $isError;
 	public $addSuccess;
@@ -39,6 +36,7 @@ class IndexDisplay extends Display
 
 	public function __construct($isJavascript = true)
 	{
+		parent::__construct();
 		$this->isError = false;
 		$this->isJavascript = $isJavascript;
 		$this->addSuccess = false;
@@ -85,8 +83,7 @@ class IndexDisplay extends Display
 
 	public function raiseError($error)
 	{
-		$this->errorMsg = "<strong>Une erreur est survenue :</strong> " . $error;
-		$this->display();
+		$this->errorMsg = "<strong>Une erreur est survenue :</strong><pre>" . $error . "</pre>";
 	}
 
 	public function display()
@@ -98,7 +95,7 @@ class IndexDisplay extends Display
 	<title>KeepassPHP</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link href='http://fonts.googleapis.com/css?family=Philosopher' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Philosopher' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/bootstrap.min.css" />
 	<link rel="stylesheet" href="css/main.css" />
 
@@ -218,7 +215,7 @@ if($this->isJavascript)
 		self::START_HI_HIDE . self::HI_BADPWD . '</span></div>';
 }
 ?>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<div class="modal hide fade" id="modalError">

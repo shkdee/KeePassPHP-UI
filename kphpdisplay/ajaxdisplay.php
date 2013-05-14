@@ -6,7 +6,7 @@
  * @author Louis
  */
 
-require_once "keepassphp/display.php";
+require_once "display.php";
 
 class AjaxDisplay extends Display
 {
@@ -22,6 +22,7 @@ class AjaxDisplay extends Display
 
 	public function __construct($defaultResult = self::FAIL)
 	{
+		parent::__construct();
 		$this->result = $defaultResult;
 		$this->html = "";
 	}
@@ -44,8 +45,7 @@ class AjaxDisplay extends Display
 	public function raiseError($error)
 	{
 		$this->result = self::FAIL;
-		$this->html = Display::makePrintable($error);
-		$this->display();
+		$this->html = $error;
 	}
 
 	public function display()

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Description of AjaxFormatter
- *
- * @author Louis
- */
-
 abstract class HTMLFormat
 {
 	const ENTRIES_HEAD = '<thead><tr><th> </th><th>Titre</th><th>URL</th><th>Nom d\'utilisateur</th><th>Mot de passe</th></tr></thead>';

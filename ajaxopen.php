@@ -30,13 +30,12 @@ elseif(!$usePwdForCK && strlen($otherPwd) == 0)
 }
 else
 {
-	require_once "keepassphp/keepassphp.php";    
-	KeePassPHP::init($display);
+	require_once "keepassphp/keepassphp.php";
+	KeePassPHP::init(true);
 	if(KeePassPHP::exists($dbid))
 	{
-		$db = KeePassPHP::get($dbid, $pwd, $usePwdForCK,
-			strlen($otherPwd) > 0 ? array($otherPwd) : array());
-		if($db != null)
+		$db = KeePassPHP::get($dbid, $pwd, $usePwdForCK ? $pwd : $otherPwd);
+		if($db != null && $db->tryLoad())
 		{
 			require_once "kphpdisplay/htmlformat.php";
 			if($isPwd)
@@ -56,7 +55,7 @@ else
 			else
 			{
 				$display->setResult(AjaxDisplay::SUCCESS);
-				$display->addHTML(HTMLFormat::formatEntries($db, 20));
+				$display->addHTML(HTMLFormat::formatEntries($db));
 			}
 		}
 		else
@@ -64,6 +63,9 @@ else
 	}
 	else
 		$display->setResult(AjaxDisplay::NO_SUCH_ID);
+	$display->addDebug(KeePassPHP::$errordump);
+	if(KeePassPHP::$isError)
+		$display->raiseError(KeePassPHP::$errordump);
 }
 
 $display->display();
