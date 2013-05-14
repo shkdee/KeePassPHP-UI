@@ -6,9 +6,9 @@
  * @author Louis
  */
 
-require_once "display.php";
+require_once "kphpui.php";
 
-class AjaxDisplay extends Display
+class AjaxUI extends KphpUI
 {
 	private $result;
 	private $html;   
@@ -42,16 +42,13 @@ class AjaxDisplay extends Display
 		$this->html .= $h;
 	}
 
-	public function raiseError($error)
-	{
-		$this->result = self::FAIL;
-		$this->html = $error;
-	}
-
 	public function display()
 	{
-		echo json_encode(array($this->result, $this->html,
-			$this->result != self::SUCCESS ? $this->dumpDebug() : ""));
+		if($this->isError)
+			$this->result = self::FAIL;
+		echo json_encode(array($this->result,
+			$this->result == self::FAIL ? $this->debug : $this->html,
+			$this->result != self::SUCCESS ? $this->debug : ""));
 	}
 }
 

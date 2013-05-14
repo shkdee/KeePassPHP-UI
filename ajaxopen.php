@@ -1,73 +1,71 @@
 <?php
 
-require "kphpdisplay/basic.php";
-require_once "kphpdisplay/ajaxdisplay.php";
+require_once "kphpui/conf.php";
+require_once "kphpui/ajaxui.php";
 
-$isPwd = getString("r", $_GET) == "p" &&
-	($uuid = getString("uuid", $_POST)) != null;
+$isPwd = KphpUI::getString("r", $_GET) == "p" &&
+	($uuid = KphpUI::getString("uuid", $_POST)) != null;
 
-$dbid = getString("dbid", $_POST);
-$pwd = getString("mainPwd", $_POST);
-$usePwdForCK = getString("usePwdForCK", $_POST, "0") != "0";
-$otherPwd = getString("openPwd1", $_POST);
+$dbid = KphpUI::getString("dbid", $_POST);
+$pwd = KphpUI::getString("mainPwd", $_POST);
+$usePwdForCK = KphpUI::getString("usePwdForCK", $_POST, "0") != "0";
+$otherPwd = KphpUI::getString("openPwd1", $_POST);
 
-$display = new AjaxDisplay(AjaxDisplay::FAIL);
+$ui = new AjaxUI(AjaxUI::FAIL);
 
 if(strlen($dbid) == 0)
 {
-	$display->setResult(AjaxDisplay::SOMETHING_EMPTY);
-	$display->setHTML("dbid");
+	$ui->setResult(AjaxUI::SOMETHING_EMPTY);
+	$ui->setHTML("dbid");
 }
 elseif(strlen($pwd) == 0)
 {
-	$display->setResult(AjaxDisplay::SOMETHING_EMPTY);
-	$display->setHTML("mainPwd");
+	$ui->setResult(AjaxUI::SOMETHING_EMPTY);
+	$ui->setHTML("mainPwd");
 }
 elseif(!$usePwdForCK && strlen($otherPwd) == 0)
 {
-	$display->setResult(AjaxDisplay::SOMETHING_EMPTY);
-	$display->setHTML("openPwd1");
+	$ui->setResult(AjaxUI::SOMETHING_EMPTY);
+	$ui->setHTML("openPwd1");
 }
 else
 {
-	require_once "keepassphp/keepassphp.php";
-	KeePassPHP::init(true);
+	require_once KEEPASSPHP_LOCATION;
+	KeePassPHP::init(KEEPASSPHP_DEBUG);
 	if(KeePassPHP::exists($dbid))
 	{
 		$db = KeePassPHP::get($dbid, $pwd, $usePwdForCK ? $pwd : $otherPwd);
 		if($db != null && $db->tryLoad())
 		{
-			require_once "kphpdisplay/htmlformat.php";
+			require_once "kphpui/htmlformat.php";
 			if($isPwd)
 			{
 				$pwd = $db->getPassword($uuid);
 				if($pwd != null)
 				{
-					$display->setResult(AjaxDisplay::SUCCESS);
-					$display->addHTML(HTMLFormat::formatPassword($pwd));
+					$ui->setResult(AjaxUI::SUCCESS);
+					$ui->addHTML(HTMLFormat::formatPassword($pwd));
 				}
 				else
 				{
-					$display->setResult(AjaxDisplay::PASSWORD_NOT_FOUND);
-					$display->addHTML(HTMLFormat::PASSWORD_NOT_FOUND);
+					$ui->setResult(AjaxUI::PASSWORD_NOT_FOUND);
+					$ui->addHTML(HTMLFormat::PASSWORD_NOT_FOUND);
 				}
 			}
 			else
 			{
-				$display->setResult(AjaxDisplay::SUCCESS);
-				$display->addHTML(HTMLFormat::formatEntries($db));
+				$ui->setResult(AjaxUI::SUCCESS);
+				$ui->addHTML(HTMLFormat::formatEntries($db));
 			}
 		}
 		else
-			$display->setResult(AjaxDisplay::BAD_PASSWORD);
+			$ui->setResult(AjaxUI::BAD_PASSWORD);
 	}
 	else
-		$display->setResult(AjaxDisplay::NO_SUCH_ID);
-	$display->addDebug(KeePassPHP::$errordump);
-	if(KeePassPHP::$isError)
-		$display->raiseError(KeePassPHP::$errordump);
+		$ui->setResult(AjaxUI::NO_SUCH_ID);
+	$ui->addDebug(KeePassPHP::$errordump, KeePassPHP::$isError);
 }
 
-$display->display();
+$ui->display();
 
 ?>

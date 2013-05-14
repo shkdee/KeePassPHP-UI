@@ -1,11 +1,11 @@
 <?php
 
-require_once "display.php";
+require_once "kphpui.php";
 
 /**
  * MainDisplat is in charge of displaying the main part of the KeePass UI.
  */
-class MainDisplay extends Display
+class MainUI extends KphpUI
 {
 	public $isError;
 	public $addSuccess;
@@ -109,8 +109,8 @@ class MainDisplay extends Display
 		 <div class="row">
 			<div class="span10 offset1">
 <?php
-if($this->errorMsg != null)
-	echo '<div class="alert alert-block alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button>' . $this->errorMsg . '</div>';
+if($this->isError)
+	echo '<div class="alert alert-block alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>Une erreur est survenue :</strong><pre> '. $this->debug . '</pre></div>';
 ?>
 				<ul class="nav nav-tabs" id="mainTab">
 					<li<?php echo $this->pane == self::OPEN? ' class="active"' : ''; ?>><a href="?p=open#open" data-toggle="tab">Ouvrir</a></li>
@@ -200,9 +200,8 @@ echo $this->displayControlGroup('addFile1', 'Autre clé');
 					</div>
 				</div>
 <?php
-$debug = $this->dumpDebug();
-echo '<pre id="debugtrace" class="well', ((strlen($debug) > 0) ?
-	('">Debug trace:' . "\n " . $debug) : ' hide">'), "</pre>";
+echo '<pre id="debugtrace" class="well', ((strlen($this->debug) > 0) ?
+	('">Debug trace:' . "\n " . $this->debug) : ' hide">'), "</pre>";
 echo '</div></div></div>';
 
 if($this->isJavascript)

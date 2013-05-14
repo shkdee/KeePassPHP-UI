@@ -145,7 +145,7 @@ $(function(){
 							checker.setIfEmpty("#" + response[1], ["empty", "warning"]);
 					}
 					else if(response[0] == "0")
-						raiseError(response[1] + "\n" + response[2]);
+						raiseError(response[1]);
 					checker.setStyle();
 				}
 				if(response[2] != "")
@@ -194,7 +194,7 @@ function loadPassword(uuid){
 			else if(response[0] == "5")
 				container.html(response[1]);
 			else if(response[1] != "")
-				raiseError(response[1] + "\n" + response[2]);
+				raiseError(response[1]);
 			if(response[2] != "")
 				$("#debugtrace").show().html("Debug trace:\n"+response[2]);
 			else

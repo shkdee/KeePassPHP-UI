@@ -9,7 +9,7 @@ abstract class HTMLFormat
 	static public function formatPassword($pwd)
 	{
 		return '<input type="text" class="verysmall selectOnFocus"' .
-			' value="' . Display::makePrintable($pwd). '" style="font-size:3px !important;"/>';
+			' value="' . KphpUI::makePrintable($pwd). '" style="font-size:3px !important;"/>';
 	}
 	
 	static public function formatEntries(Database $db, $llimit = self::DEFAULT_LINK_LIMIT)
@@ -19,11 +19,11 @@ abstract class HTMLFormat
 		{
 			$icon = $db->getIconSrc($e[Database::KEY_CUSTOMICON]);
 			$s.= '<tr><td>' . ($icon == null ? '' : '<img src="' .
-				Display::makePrintable($icon) . '" />') . '</td>';
-			$s.= '<td>' . Display::makePrintable($e[Database::KEY_TITLE]) . '</td>';
+				KphpUI::makePrintable($icon) . '" />') . '</td>';
+			$s.= '<td>' . KphpUI::makePrintable($e[Database::KEY_TITLE]) . '</td>';
 			$s.= '<td>'. self::formatLink($e[Database::KEY_URL], $llimit) . '</td>';
 			$s.= '<td><input type="text" class="span3 selectOnFocus" value="' .
-				Display::makePrintable($e[Database::KEY_USERNAME]) . '" /></td>';
+				KphpUI::makePrintable($e[Database::KEY_USERNAME]) . '" /></td>';
 			$s.= '<td id="pwd_'.$uuid.'"><button type="button" class="btn btn-primary"'.
 				' onclick="loadPassword(\'' . $uuid . '\');" autocomplete="off"'.
 				' data-loading-text="...">Load</button></td></tr>';
@@ -43,7 +43,7 @@ abstract class HTMLFormat
 			$a = '</a>';
 			$r = substr($l, $b == "http://" ? 7 : 8);
 		}        
-		return $p . Display::makePrintable($l) . '">' . Display::makePrintable(
+		return $p . KphpUI::makePrintable($l) . '">' . KphpUI::makePrintable(
 			strlen($r) > $limit ? substr($r, 0, $limit-3)."...":$r) . $a;
 	}
 }
