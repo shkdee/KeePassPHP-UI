@@ -185,10 +185,10 @@ echo $this->displayControlGroup('addFile1', 'Autre clé');
 							<div class="span8 offset1">
 								<p class="lead">Bienvenue sur KeePassPHP !</p>
 								<p>KeePassPHP est un portage de <a href="http://keepass.info">KeePass</a> en PHP, encore en développement.
-									L'idée est de pouvoir accéder à sa base de données KeePass sur une autre machine sur la sienne (en
-									essayant de ne pas trop brîser la chaîne de sécurité, mais il est toujours dur d'éviter les keyloggers
-									dès qu'on est plus sur sa propre machine). L'interface web est réalisée avec
-									<a href="http://twitter.github.com/bootstrap/index.html">Bootstrap</a> et <a href="http://jquery.com/">jQuery</a>.</p>
+									L'idée est de pouvoir accéder à sa base de données KeePass sur une autre machine sur la sienne, facilement,
+									à travers l'internet, en essayant de ne pas trop rogner la sécurité. L'interface web est réalisée avec
+									<a href="http://twitter.github.com/bootstrap">Bootstrap</a> et <a href="http://jquery.com">jQuery</a>, et ses
+									sources sont disponibles sur <a href="https://github.com/shkdee/KeePassPHP-UI">GitHub</a>.</p>
 							</div>
 						</div>
 					</div>
@@ -208,8 +208,8 @@ if($this->isJavascript)
 		self::START_HI_HIDE . self::HI_BADPWD . '</span></div>';
 }
 ?>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<div class="modal hide fade" id="modalError">
 		<div class="modal-header">
