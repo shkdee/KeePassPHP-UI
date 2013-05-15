@@ -20,6 +20,8 @@ abstract class KphpUI
 		$this->isError = $this->isError || $isError;
 	}
 
+	abstract public function display();
+
 	/**
 	 * Returns the string in a html-printable format : encoded
 	 * in UTF8, and with some special chars rightly encoded.

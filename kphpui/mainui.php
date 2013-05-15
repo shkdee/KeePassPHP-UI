@@ -7,13 +7,12 @@ require_once "kphpui.php";
  */
 class MainUI extends KphpUI
 {
-	public $isError;
 	public $addSuccess;
-
+	public $isSomethingEmpty;
+	
 	private $isJavascript;
 	private $pane;
 	private $inputs;
-	private $errorMsg;
 
 	const SEE = "see";
 	const ABOUT = "about";
@@ -37,8 +36,8 @@ class MainUI extends KphpUI
 	public function __construct($isJavascript = true)
 	{
 		parent::__construct();
-		$this->isError = false;
 		$this->isJavascript = $isJavascript;
+		$this->isSomethingEmpty = false;
 		$this->addSuccess = false;
 
 		$pane = isset($_GET['p']) ? $_GET['p'] : '';
@@ -61,7 +60,7 @@ class MainUI extends KphpUI
 	{
 		if($this->inputs[$key][2] == null && $this->inputs[$key][3] == null)
 		{
-			$this->isError = true;
+			$this->isSomethingEmpty = true;
 			$this->inputs[$key][2] = $ident;
 			$this->inputs[$key][3] = $style;
 		}
@@ -79,11 +78,6 @@ class MainUI extends KphpUI
 			. $k.'"'.($d != null ? ' '.$d : '').($i[1] != null ? ' '.$i[1] : '')
 			.' />'.($i[2] == null ? '' : self::START_HI_NOHIDE.$i[2].'</span>')
 			.'</div></div>';
-	}
-
-	public function raiseError($error)
-	{
-		$this->errorMsg = "<strong>Une erreur est survenue :</strong><pre>" . $error . "</pre>";
 	}
 
 	public function display()

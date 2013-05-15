@@ -55,7 +55,7 @@ if($submitted == "add")
 		$ui->setIfEmpty("addPwd1", MainUI::HI_NOOTHERKEY, "error");
 		$ui->setIfEmpty("addFile1", MainUI::HI_ERROR, "error");
 	}
-	if(!$ui->isError)
+	if(!$ui->isSomethingEmpty)
 	{
 		require_once KEEPASSPHP_LOCATION;
 		KeePassPHP::init(KEEPASSPHP_DEBUG);
