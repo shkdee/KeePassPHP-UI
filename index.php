@@ -1,11 +1,12 @@
 <?php
 
-require_once "kphpui.php";
+require_once "keepassphpui/main.php";
 
 define("MAX_FILE_SIZE", 100000);
 
 $hasAddSuccess = false;
 
+// give javascript error messages for the selected language
 $javascriptContent = "var errorMessages = {" . 
 	"empty: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_EMPTY)) . "\", " .
 	"nootherkey: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_NOOTHERKEY)) . "\", " .
@@ -15,16 +16,21 @@ $javascriptContent = "var errorMessages = {" .
 	"fileerror: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_FILEERROR)) . "\", " .
 	"idexists: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_IDEXISTS)) . "\"};";
 
-
+// the page that should be displayed at firt
 $p = isset($_GET["p"]) && $_GET["p"] == "add" ? "add" : "open";
 
-$url_nolang_params = isset($_GET["p"]) && $_GET["p"] == $p ? ("p=" . $p . "&amp;") : "";
-$url_lang_param = isset($_GET["l"]) && $_GET["l"] == KPHPUI::$lang ? ("&amp;l=" . KPHPUI::$lang) : "";
+$url_nolang_params = isset($_GET["p"]) && $_GET["p"] == $p ? ("&amp;p=" . $p) : "";
+$url_lang_param = isset($_GET["l"]) && $_GET["l"] == KPHPUI::$lang ? ("l=" . KPHPUI::$lang . "&amp;") : "";
 
+// always force lang of ajax queries
+$javascriptContent .= "\nvar forceLang = \"" . KPHPUI::$lang . "\";";
+
+// add a database if the add form is being submitted
 $formErrors = array();
 $submitted = KPHPUI::getPost("submitted");
 if($submitted == "add")
 {
+	// check all POST & FILE parameters
 	$dbid = KPHPUI::getPost("add_dbid");
 	$mainPwd = KPHPUI::getPost("add_main_pwd");
 	$otherPwd = KPHPUI::getPost("add_other_pwd");
@@ -61,6 +67,8 @@ if($submitted == "add")
 
 	if($ok)
 	{
+		// every parameter seems to be fine:
+		// include KeePassPHP and try to add the database 
 		require_once KEEPASSPHP_LOCATION;
 		KeePassPHP::init(KEEPASSPHP_DEBUG);
 
@@ -102,6 +110,7 @@ if($submitted == "add")
 	}
 }
 
+// errors to be displayed by javascript after the page loading
 $javascriptContent .= "\nvar formErrors = {";
 $isFirst = true;
 foreach($formErrors as $input => &$error)
@@ -114,6 +123,7 @@ foreach($formErrors as $input => &$error)
 }
 $javascriptContent .= "};";
 
+// display the HTML
 ?>
 
 <!DOCTYPE html>
@@ -123,7 +133,7 @@ $javascriptContent .= "};";
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo KPHPUI::l(KPHPUI::LANG_TITLE); ?></title>
+	<title><?php echo KPHPUI::l(KPHPUI::LANG_PAGE_TITLE); ?></title>
 	<link rel="stylesheet" href="css/bootstrap.min.css?3.3.6" />
 	<link rel="stylesheet" href="css/main.css?1.0" />
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -145,10 +155,11 @@ $javascriptContent .= "};";
 					<li role="presentation"><a href="#about" aria-controls="about" role="tab" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_TAB_ABOUT); ?></a></li>
 					<li role="presentation" class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#lang" role="button"><?php echo KPHPUI::$lang; ?> <span class="caret"></span></a>
-						<ul class="dropdown-menu">
-							<li><a href="?<?php echo $url_nolang_params; ?>l=fr">fr</a></li>
-							<li><a href="?<?php echo $url_nolang_params; ?>l=en">en</a></li>
-						</ul>
+						<ul class="dropdown-menu"><?php
+$availableLangs = KPHPUI::avilablableLangs();
+foreach($availableLangs as &$lang)
+	echo '<li><a href="?l=' . $lang . $url_nolang_params . '">' . $lang . '</a></li>';
+						?></ul>
 					</li>
 					<li role="presentation"><a type="button" id="btn_clean_all" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></a></li>
 				</ul>
@@ -156,7 +167,7 @@ $javascriptContent .= "};";
 					<div role="tabpanel" class="tab-pane fade<?php if($p == "open") echo ' active in'; ?>" id="open">
 						<div class="row">
 							<div class="col-sm-10 col-sm-offset-1">
-								<form class="form-horizontal" method="post" action="./?p=open<?php echo $url_lang_param; ?>" id="form_open">
+								<form class="form-horizontal" method="post" action="./?<?php echo $url_lang_param; ?>p=open" id="form_open">
 									<fieldset>
 										<legend><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_TITLE); ?></legend>
 										<div class="form-group">
@@ -200,7 +211,7 @@ $javascriptContent .= "};";
 					<div role="tabpanel" class="tab-pane fade<?php if($p == "add") echo ' active in'; ?>" id="add">
 						<div class="row">
 							<div class="col-sm-10 col-sm-offset-1">
-								<form class="form-horizontal" method="post" action="./?p=add<?php echo $url_lang_param; ?>" enctype="multipart/form-data" id="form_add">
+								<form class="form-horizontal" method="post" action="./?<?php echo $url_lang_param; ?>p=add" enctype="multipart/form-data" id="form_add">
 									<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
 									<fieldset>
 										<legend><?php echo KPHPUI::l(KPHPUI::LANG_ADD_TITLE); ?></legend>

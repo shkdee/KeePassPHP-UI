@@ -101,6 +101,8 @@ $(function()
 		if(urlParts[1] == "see" || urlParts[1] == "open" || urlParts[1] == "about" || urlParts[1] == "add")
 			$('ul.nav.nav-tabs a[href="#' + urlParts[1] + '"]').tab("show");
 
+	var ajaxQueryString = (typeof forceLang !== "undefined" && forceLang) ?
+		"?l=" + forceLang : "";
 
 	$get("dbid").focus();
 	$get("use_pwd_in_key").on("click", function() {
@@ -201,7 +203,7 @@ $(function()
 			},
 			method: 'POST',
 			dataType: 'json',
-			url: 'ajaxopen.php',
+			url: 'ajaxopen.php' + ajaxQueryString,
 			timeout: 20000
 		})
 			.fail(function(jqxhr, status, error) {
@@ -259,7 +261,7 @@ $(function()
 				},
 				method: 'POST',
 				dataType: 'json',
-				url: 'ajaxopen.php',
+				url: 'ajaxopen.php' + ajaxQueryString,
 				timeout: 20000
 			})
 				.fail(function(jqxhr, status, error) {

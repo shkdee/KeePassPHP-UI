@@ -1,18 +1,30 @@
 <?php
 
-require_once "kphpui.php";
+require_once "keepassphpui/main.php";
 
+/**
+ * A class that manage the answer that will be sent as a stringified json
+ * object. This object has three properties: 'status', containing an integer
+ * describing the result; 'result', containing a string which is the result;
+ * and 'debug' if there is debug information to send.
+ */
 class AjaxAnswer
 {
 	private $status;
 	private $result;
 	private $debug;
 
+	/** Status: unexpected fail. */
 	const FAIL = 0;
+	/** Status: operation succeeded (either database opening or password extracting). */
 	const SUCCESS = 1;
+	/** Status: wrong password for the database. */
 	const BAD_PASSWORD = 2;
+	/** Status: the given database ID does not exist. */
 	const NO_SUCH_ID = 3;
+	/** Status: a POST parameter is missing or empty. */
 	const SOMETHING_EMPTY = 4;
+	/** Status: the requested password does not exist in the database (this is weird). */
 	const PASSWORD_NOT_FOUND = 5;
 
 	public function __construct()
@@ -22,17 +34,27 @@ class AjaxAnswer
 		$this->debug = null;
 	}
 
-	public function set($s, $r = "")
+	/**
+	 * Sets the 'status' and 'result' fields of the answer.
+	 */
+	public function set($status, $result = "")
 	{
-		$this->status = $s;
-		$this->result = $r;
+		$this->status = $status;
+		$this->result = $result;
 	}
 
+	/**
+	 * Sets the 'debug' field of the answer.
+	 */
 	public function setDebug($debug)
 	{
 		$this->debug = $debug;
 	}
 
+	/**
+	 * Sends the answer. You should not output something anymore after
+	 * calling this method.
+	 */
 	public function send()
 	{
 		header('Content-Type: application/json; charset=utf-8');
@@ -72,7 +94,7 @@ else
 			{
 				$pwd = $db->getPassword($uuid);
 				if($pwd != null)
-					$answer->set(AjaxAnswer::SUCCESS, '<input type="text" class="verysmall selectOnFocus form-control" value="' . KPHPUI::makePrintable($pwd) . '" style="font-size:3px !important;"/>');
+					$answer->set(AjaxAnswer::SUCCESS, '<input type="text" class="verysmall selectOnFocus form-control" value="' . KPHPUI::htmlify($pwd) . '" style="font-size:3px !important;"/>');
 				else
 					$answer->set(AjaxAnswer::PASSWORD_NOT_FOUND, '<span class="label label-danger">' . KPHPUI::l(KPHPUI::LANG_SEE_PWD_DOES_NOT_EXIST) . '</span>');
 			}
@@ -86,8 +108,8 @@ else
 				foreach($db->getEntries() as $uuid => $entry)
 				{
 					$icon = $db->getIconSrc($entry[Database::KEY_CUSTOMICON]);
-					$s.= '<tr><td>' . ($icon == null ? '' : '<img src="' . KPHPUI::makePrintable($icon) . '" />') . '</td>';
-					$s.= '<td>' . KPHPUI::makePrintable($entry[Database::KEY_TITLE]) . '</td>';
+					$s.= '<tr><td>' . ($icon == null ? '' : '<img src="' . KPHPUI::htmlify($icon) . '" />') . '</td>';
+					$s.= '<td>' . KPHPUI::htmlify($entry[Database::KEY_TITLE]) . '</td>';
 
 					$url = $entry[Database::KEY_URL];
 					$protoSep = strpos($url, "://");
@@ -95,12 +117,12 @@ else
 					$isHttp = $proto == "http" || $proto == "https";
 					$displayed = $isHttp ? substr($url, $protoSep + 3) : $url;
 
-					$s .= '<td>' . ($isHttp ? '<a href="' : '<span title="') . KPHPUI::makePrintable($url) . '">'
-						. KPHPUI::makePrintable(strlen($displayed) > 20 ? substr($displayed, 0, 17) . '...' : $displayed)
+					$s .= '<td>' . ($isHttp ? '<a href="' : '<span title="') . KPHPUI::htmlify($url) . '">'
+						. KPHPUI::htmlify(strlen($displayed) > 20 ? substr($displayed, 0, 17) . '...' : $displayed)
 						. ($isHttp ? '</a>' : '</span>') . '</td>';
 
 
-					$s.= '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::makePrintable($entry[Database::KEY_USERNAME]) . '" /></td>';
+					$s.= '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::htmlify($entry[Database::KEY_USERNAME]) . '" /></td>';
 					$s.= '<td id="pwd_' . $uuid . '"><button type="button" class="btn btn-primary passwordLoader" data-uuid="'
 						. $uuid . '" autocomplete="off" data-loading-text="...">' . KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_LOAD) . '</button></td></tr>';
 				}
