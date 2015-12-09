@@ -1,96 +1,322 @@
 <?php
 
-require_once "kphpui/conf.php";
-require_once "kphpui/mainui.php";
+require_once "kphpui.php";
 
 define("MAX_FILE_SIZE", 100000);
 
-function getFile($k)
-{
-		if(!isset($_FILES[$k]))
-				return null;
-		$f = $_FILES[$k];
-		if($f['name'] == '' || $f['error'] == UPLOAD_ERR_NO_FILE || $f['tmp_name'] == '')
-				return null;
-		return $f;
-}
+$hasAddSuccess = false;
 
-function checkFile($k, $f, $display)
-{
-	if($f == null)
-	{
-		$display->setIfEmpty($k, MainUI::HI_EMPTY, 'warning');
-		return null;
-	}
-	if($f['error'] == UPLOAD_ERR_INI_SIZE || $f['error'] == UPLOAD_ERR_FORM_SIZE
-		|| $f['size'] > MAX_FILE_SIZE)
-	{
-		$display->setIfEmpty($k, MainUI::HI_FILETOOBIG, 'error');
-		return null;
-	}
-	if($f['error'] != UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name']))
-	{
-		$display->setIfEmpty($k, MainUI::HI_FILEERROR, 'error');
-		return null;
-	}
-	return $f['tmp_name'];
-}
+$javascriptContent = "var errorMessages = {" . 
+	"empty: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_EMPTY)) . "\", " .
+	"nootherkey: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_NOOTHERKEY)) . "\", " .
+	"nosuchid: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_NOSUCHID)) . "\", " .
+	"badpwd: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_BADPWD)) . "\", " .
+	"filetoobig: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_FILETOOBIG)) . "\", " .
+	"fileerror: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_FILEERROR)) . "\", " .
+	"idexists: \"" . addslashes(KPHPUI::l(KPHPUI::LANG_FORM_ERROR_IDEXISTS)) . "\"};";
 
-$ui = new MainUI();
 
-$submitted = KphpUI::getString("submitted", $_POST);
+$p = isset($_GET["p"]) && $_GET["p"] == "add" ? "add" : "open";
+
+$url_nolang_params = isset($_GET["p"]) && $_GET["p"] == $p ? ("p=" . $p . "&amp;") : "";
+$url_lang_param = isset($_GET["l"]) && $_GET["l"] == KPHPUI::$lang ? ("&amp;l=" . KPHPUI::$lang) : "";
+
+$formErrors = array();
+$submitted = KPHPUI::getPost("submitted");
 if($submitted == "add")
 {
-	if(($dbid = KphpUI::getString("addDbid", $_POST)) == "")
-		$ui->setIfEmpty("addDbid", MainUI::HI_EMPTY, "warning");
-	if(($mainPwd = KphpUI::getString("addMainPwd", $_POST)) == "")
-		$ui->setIfEmpty("addMainPwd", MainUI::HI_EMPTY, "warning");
-	$kdbxFile = checkFile("addKdbxFile", getFile("addKdbxFile"), $ui);
-	$pwd1 = KphpUI::getString("addPwd1", $_POST);
-	$keyfile = getFile("addFile1");
-	if(!($usePwdForCK = (KphpUI::getString("addUsePwdForCK", $_POST, "") != "")) &&
-		$pwd1 == "" && $keyfile == null)
+	$dbid = KPHPUI::getPost("add_dbid");
+	$mainPwd = KPHPUI::getPost("add_main_pwd");
+	$otherPwd = KPHPUI::getPost("add_other_pwd");
+	$kdbxFile = null;
+	$kdbxFileStatus = KPHPUI::getFile("add_kdbx_file", $kdbxFile);
+	$keyFile = null;
+	$keyFileStatus = KPHPUI::getFile("add_other_keyfile", $keyFile);
+	$usePwdInKey = !empty(KPHPUI::getPost("add_use_pwd_in_key"));
+
+	$ok = true;
+	if(empty($dbid))
 	{
-		$ui->setIfEmpty("addUsePwdForCK", null, "error");
-		$ui->setIfEmpty("addPwd1", MainUI::HI_NOOTHERKEY, "error");
-		$ui->setIfEmpty("addFile1", MainUI::HI_ERROR, "error");
+		$ok = false;
+		$formErrors["add_dbid"] = "empty";
 	}
-	if(!$ui->isSomethingEmpty)
+	if(empty($mainPwd))
+	{
+		$ok = false;
+		$formErrors["add_main_pwd"] = "empty";
+	}
+	if(!$usePwdInKey && empty($otherPwd) && $keyFileStatus != KPHPUI::GET_FILE_OK)
+	{
+		$ok = false;
+		$formErrors["add_other_pwd"] = "nootherkey";
+		$formErrors["add_other_keyfile"] = "nootherkey";
+	}
+	if($kdbxFileStatus != KPHPUI::GET_FILE_OK)
+	{
+		$ok = false;
+		$formErrors["add_kdbx_file"] = $kdbxFileStatus == KPHPUI::GET_FILE_EMPTY
+			? "empty" : $kdbxFileStatus == KPHPUI::GET_FILE_TOO_BIG
+			? "filetoobig" : "fileerror";
+	}
+
+	if($ok)
 	{
 		require_once KEEPASSPHP_LOCATION;
 		KeePassPHP::init(KEEPASSPHP_DEBUG);
+
 		if(!KeePassPHP::exists($dbid) || KeePassPHP::checkPassword($dbid, $mainPwd))
 		{
-			$keys = $usePwdForCK ? array(array(KeePassPHP::KEY_PWD, $mainPwd)) : array();
-			if($pwd1 != '')
-				$keys[] = array(KeePassPHP::KEY_PWD, $pwd1);
-			if($keyfile != null)
-				if(($keyfile = checkFile("addFile1", $keyfile, $ui)) != null)
-					$keys[] = array(KeePassPHP::KEY_FILE, $keyfile);
+			$keys = array();
+			if($usePwdInKey)
+				$keys[] = array(KeePassPHP::KEY_PWD, $mainPwd);
+			else if(!empty($otherPwd))
+				$keys[] = array(KeePassPHP::KEY_PWD, $otherPwd);
+			if($keyFileStatus == KPHPUI::GET_FILE_OK)
+				$keys[] = array(KeePassPHP::KEY_FILE, $keyFile);
+
 			if(KeePassPHP::checkKeys($kdbxFile, $keys))
 			{
 				if(KeePassPHP::tryAdd($kdbxFile, $dbid, $mainPwd, $keys))
-					$ui->addSuccess = true;
+				{
+					$hasAddSuccess = true;
+					$javascriptContent .= "\n$(function() { $('#modal_success').modal('show'); });";
+				}
+				else
+					$javascriptContent .= "\n$(function() { raiseError(\"" . str_replace("\n", "\\n", addslashes(KeePassPHP::$errordump)) . "\"); });";
 			}
 			else
 			{
-				if($usePwdForCK)
-					$ui->setIfEmpty("addMainPwd", MainUI::HI_BADPWD, "error");
-				if($pwd1 != "")
-					$ui->setIfEmpty("addPwd1", MainUI::HI_BADPWD, "error");
-				if($keyfile != null)
-					$ui->setIfEmpty ("addFile1", MainUI::HI_BADPWD, "error");
+				if(!empty($usePwdInKey))
+					$formErrors["add_main_pwd"] = "badpwd";
+				if(!empty($otherPwd))
+					$formErrors["add_other_pwd"] = "badpwd";
+				if($keyFileStatus == KPHPUI::GET_FILE_OK)
+					$formErrors["add_other_keyfile"] = "badpwd";
 			}
 		}
 		else
-		{
-			$ui->setIfEmpty("addDbid", MainUI::HI_IDEXISTS, "error");
-			$ui->setIfEmpty("addMainPwd", null, "error");
-		}
-		$ui->addDebug(KeepassPHP::$errordump, KeePassPHP::$isError);
+			$formErrors["add_dbid"] = "idexists";
+
+		if(KEEPASSPHP_DEBUG)
+			$javascriptContent .= "\nvar debugTrace = \"" . str_replace("\n", "\\n", addslashes(KeePassPHP::$errordump)) . "\";";
 	}
 }
 
-$ui->display();
+$javascriptContent .= "\nvar formErrors = {";
+$isFirst = true;
+foreach($formErrors as $input => &$error)
+{
+	if($isFirst)
+		$isFirst = false;
+	else
+		$javascriptContent .= ", ";
+	$javascriptContent .= $input . ": '" . $error . "'";
+}
+$javascriptContent .= "};";
 
 ?>
+
+<!DOCTYPE html>
+<html lang="<?php echo KPHPUI::$lang; ?>">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><?php echo KPHPUI::l(KPHPUI::LANG_TITLE); ?></title>
+	<link rel="stylesheet" href="css/bootstrap.min.css?3.3.6" />
+	<link rel="stylesheet" href="css/main.css?1.0" />
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation"<?php if($p == "open") echo ' class="active"'; ?>><a href="#open" aria-controls="open" role="tab" data-toggle="tab" id="open_tab_a"><?php echo KPHPUI::l(KPHPUI::LANG_TAB_OPEN); ?></a></li>
+					<li role="presentation"<?php if($p == "add") echo ' class="active"'; ?>><a href="#add" aria-controls="add" role="tab" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_TAB_ADD); ?></a></li>
+					<li role="presentation" class="disabled" id="see_tab_li"><a href="#see" aria-controls="see" role="tab" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_TAB_SEE); ?></a></li>
+					<li role="presentation"><a href="#about" aria-controls="about" role="tab" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_TAB_ABOUT); ?></a></li>
+					<li role="presentation" class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#lang" role="button"><?php echo KPHPUI::$lang; ?> <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="?<?php echo $url_nolang_params; ?>l=fr">fr</a></li>
+							<li><a href="?<?php echo $url_nolang_params; ?>l=en">en</a></li>
+						</ul>
+					</li>
+					<li role="presentation"><a type="button" id="btn_clean_all" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></a></li>
+				</ul>
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane fade<?php if($p == "open") echo ' active in'; ?>" id="open">
+						<div class="row">
+							<div class="col-sm-10 col-sm-offset-1">
+								<form class="form-horizontal" method="post" action="./?p=open<?php echo $url_lang_param; ?>" id="form_open">
+									<fieldset>
+										<legend><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_TITLE); ?></legend>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="dbid"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_DBID_LABEL); ?></label>
+											<div class="col-sm-6">
+												<input type="text" class="form-control" id="dbid" name="dbid" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_DBID_PLACEHOLDER); ?>" />
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="main_pwd"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_PWD_LABEL); ?></label>
+											<div class="col-sm-6">
+												<input type="password" class="form-control" id="main_pwd" name="main_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
+											</div>
+										</div>
+										<p><a data-toggle="collapse" href="#open_more" aria-expanded="false" aria-controls="open_more" id="open_more_a"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_MORE); ?> <span class="caret"></span></a></p>
+										<div id="open_more" class="collapse">
+											<div class="form-group">
+												<label class="col-sm-4 control-label" for="use_pwd_in_key"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_USE_AS_KEY); ?></label>
+												<div class="col-sm-6">
+													<input type="checkbox" id="use_pwd_in_key" name="use_pwd_in_key" checked="checked" value="1" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-4 control-label" for="open_other_pwd"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_OTHER_PWD_LABEL); ?></label>
+												<div class="col-sm-6">
+													<input type="password" class="form-control" id="open_other_pwd" name="open_other_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-offset-4 col-sm-6">
+												<input type="hidden" name="submitted" value="open" />
+												<button type="submit" class="btn btn-primary" data-loading-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_LOADING); ?>" autocomplete="off"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND); ?></button>
+											</div>
+										</div>
+									</fieldset>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane fade<?php if($p == "add") echo ' active in'; ?>" id="add">
+						<div class="row">
+							<div class="col-sm-10 col-sm-offset-1">
+								<form class="form-horizontal" method="post" action="./?p=add<?php echo $url_lang_param; ?>" enctype="multipart/form-data" id="form_add">
+									<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+									<fieldset>
+										<legend><?php echo KPHPUI::l(KPHPUI::LANG_ADD_TITLE); ?></legend>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="add_dbid"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_DBID_LABEL); ?></label>
+											<div class="col-sm-6">
+												<input type="text" class="form-control" id="add_dbid" name="add_dbid" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_ADD_DBID_PLACEHOLDER); ?>" />
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="add_kdbx_file"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_FILE_LABEL); ?></label>
+											<div class="col-sm-6">
+												<input type="file" id="add_kdbx_file" name="add_kdbx_file" />
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="add_main_pwd"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_PWD_LABEL); ?></label>
+											<div class="col-sm-6">
+												<input type="password" class="form-control" id="add_main_pwd" name="add_main_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
+											</div>
+										</div>
+										<p><a data-toggle="collapse" href="#add_more" aria-expanded="false" aria-controls="add_more" id="add_more_a"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_MORE); ?> <span class="caret"></span></a></p>
+										<div id="add_more" class="collapse">
+											<div class="form-group">
+												<label class="col-sm-4 control-label" for="add_use_pwd_in_key"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_USE_AS_KEY); ?></label>
+												<div class="col-sm-6">
+													<input type="checkbox" id="add_use_pwd_in_key" name="add_use_pwd_in_key" checked="checked" value="1" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-4 control-label" for="add_other_pwd"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_OTHER_PWD_LABEL); ?></label>
+												<div class="col-sm-6">
+													<input type="password" class="form-control" id="add_other_pwd" name="add_other_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-4 control-label" for="add_other_keyfile"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_OTHER_KEYFILE_LABEL); ?></label>
+												<div class="col-sm-6">
+													<input type="file" id="add_other_keyfile" name="add_other_keyfile" />
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-offset-4 col-sm-6">
+												<input type="hidden" name="submitted" value="add" />
+												<button type="submit" class="btn btn-primary"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_SEND); ?></button>
+											</div>
+										</div>
+									</fieldset>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div role="tabpanel" class="tab-pane fade" id="see">
+						<div class="alert alert-warning" id="see_alert">
+							<p class="lead"><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_TITLE); ?></p>
+							<p><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_TEXT); ?> <a href="#open" aria-controls="add" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_LINK); ?></a></p>
+						</div>
+						<div id="see_results" class="hide"></div>
+					</div>
+					<div role="tabpanel" class="tab-pane fade" id="about">
+						<div class="row">
+							<div class="col-sm-10 col-sm-offset-1">
+								<p class="lead"><?php echo KPHPUI::l(KPHPUI::LANG_ABOUT_TITLE); ?></p>
+								<p><?php echo KPHPUI::l(KPHPUI::LANG_ABOUT_TEXT); ?></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<pre id="debugtrace" class="well hide"></pre>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="modal_error" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_ERROR_TITLE); ?></h4>
+				</div>
+				<div class="modal-body">
+					<p class="alert alert-danger"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_ERROR_TEXT); ?></p>
+					<pre class="well"></pre>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_CLOSE); ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+<?php
+if($hasAddSuccess) {
+?>
+	<div class="modal fade" id="modal_success" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h3><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_SUCCESS_TITLE); ?></h3>
+				</div>
+				<div class="modal-body">
+					<p class="alert alert-success"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_SUCCESS_TEXT); ?></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_CLOSE); ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+<?php
+}
+?>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js?3.3.6"></script>
+	<script type="text/javascript"><?php echo $javascriptContent; ?></script>
+	<script src="js/main.js?1.0"></script>
+</body>
+
+</html>

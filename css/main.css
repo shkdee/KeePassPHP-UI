@@ -1,17 +1,20 @@
 body
 {
-	margin-top:1em;
-}
-
-.superhide
-{
-	display:none;
-	height:1px;
-	overflow: hidden;
+	margin-top: 1em;
 }
 
 input.verysmall
 {
 	font-size:3px !important;
-	width:15px !important;
+	width:35px !important;
+}
+
+.nav-tabs > li > a.close
+{
+	line-height: 21px !important;
+}
+
+.tab-content
+{
+	margin-top: 1.5em;
 }

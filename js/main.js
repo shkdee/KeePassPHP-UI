@@ -1,205 +1,318 @@
-$(function(){
-	$("#dbid").focus();
-	$("#usePwdForCK").click(function(){
-		if(!$(this).is(':checked'))
-			$("#openPwd1").focus();
-	});
-	$("#addUsePwdForCK").click(function(){
-		if(!$(this).is(':checked'))
-			$("#addPwd1").focus();
-	});
-	$(".withToggleableChevron").click(function(){
-		$(this).children('i')
-			.toggleClass('icon-chevron-up')
-			.toggleClass('icon-chevron-down');
-	});
-});
+function $cel(n)
+{
+	return $(document.createElement(n));
+}
 
-$(function(){
-	var sp = location.href.split("#");
-	if(sp.length > 1)
-		if(sp[1] == "see" || sp[1] == "open" || sp[1] == "about" || sp[1] == "add")
-			$('#mainTab a[href="#'+sp[1]+'"]').tab("show");
-});
+function $get(id)
+{
+	return $(document.getElementById(id));
+}
 
-function raiseError(body){
-	var modal = $("#modalError");
-	modal.find(".modal-body > pre").html(body);
+function raiseError(body) {
+	var modal = $get("modal_error");
+	modal.find(".modal-body > pre").text(body);
 	modal.modal("show");
 }
 
-function formChecker(state){
-	this.state = state;
-	this.isError = false;
-	this.manageStyles = function(field, param){
-		var par = field.parent().parent();
-		var found = false;
-		$.each(par.attr("class").split(/\s+/), function(i, e){
-			if(e == param[1]) found = true
-			else par.toggleClass(e, e == "control-group");
-		});
-		if(!found && param[1] != null)
-			par.addClass(param[1]);
-		found = false;
-		field.siblings('.help-inline').each(function(i){
-			var e = $(this);
-			if(e.attr("ident") != param[0])
-				e.hide("slow", "linear", function() { $(this).remove(); });
-			else
-				found = true;
-		});
-		if(!found && param[0] != null){
-			var nn = $('#errorMessages > [ident="'+param[0]+'"]').clone();
-			field.after(nn);
-			nn.show("fast", "linear");
-		}
-	}
-	this.setStyle = function(){
-		var isFocus = false;
-		for(var k in this.state)
-			if(this.state[k] == null || this.state[k] == "")
-				this.manageStyles($(k), [null, null]);
-			else {
-				this.manageStyles($(k), this.state[k]);
-				if(!isFocus){
-					$(k).focus();
-					isFocus = true;
-				}
-			}
-	}
-	this.setIfEmpty = function(k, v){
-		if(this.state[k] == null && v != null){
-			state[k] = v;
-			this.isError = true;
-		}
-	}
+function InputWatcher(input)
+{
+	this._event = input.attr("type") == "checkbox" ? "change" : "input";
+	this.input = input;
+	var that = this;
+	input.on(this._event, function() {
+		if(that._watched)
+		{
+			var test = that.makeTest();
+			that._ok = test.result;
+			that.displayError(test);
+			if(that._ok)
+				that._watched = false;
+		} else
+			that._ok = false;
+	});
 }
 
-$(function(){
-	$("#formAdd").submit(function(){
-		var checker = new formChecker({"#addDbid":null, "#addKdbxFile":null, "#addMainPwd":null, "#addPwd1":null, "#addUsePwdForCK":null, "#addFile1":null});
-		if($("#addDbid").val() == "")
-			checker.setIfEmpty("#addDbid", ["empty", "warning"]);
-		if($("#addKdbxFile").val() == "")
-			checker.setIfEmpty("#addKdbxFile", ["empty", "warning"]);
-		if($("#addMainPwd").val() == "")
-			checker.setIfEmpty("#addMainPwd", ["empty", "warning"]);
-		if($("#addPwd1").val() == "" && !$("#addUsePwdForCK").is(':checked')
-			&& $("#addFile1").val() == ""){
-			$("#addmore").collapse('show');
-			checker.setIfEmpty("#addPwd1", ["nootherkey", "error"]);
-			checker.setIfEmpty("#addUsePwdForCK", ["", "error"]);
-			checker.setIfEmpty("#addFile1", ["nootherkey", "error"]);
-		}
-		if(checker.isError)
-		{
-			checker.setStyle();
-			return false;
-		}
-	})
-});
+InputWatcher.prototype = {
+	_ok: false,
+	_watched: false,
 
-$(function(){
-	$("#formOpen").submit(function(){
+	makeTest: function()
+	{
+		return { result: !!this.input.val(), error: errorMessages.empty };
+	},
+
+	isValid: function()
+	{
+		if(this._ok)
+			return true;
+		this._watched = true;
+		this.input.triggerHandler(this._event);
+		return this._ok;
+	},
+
+	val: function()
+	{
+		return this.input.val();
+	},
+
+	displayError: function(test)
+	{
+		if(test.result)
+			hideErrors(this.input);
+		else
+			showError(this.input, test.error);
+	}
+};
+
+function hideErrors(input)
+{
+	var row = input.parent();
+	var form_group = row.parent();
+	if(form_group.hasClass("has-error"))
+	{
+		form_group.removeClass("has-error");
+		row.children(".help-block").remove();
+	}
+	return;
+}
+
+function showError(input, error)
+{
+	var row = input.parent();
+	var form_group = row.parent();
+	if(form_group.hasClass("has-error"))
+		row.children(".help-block").remove();
+	else
+		form_group.addClass("has-error");
+	if(error)
+		row.append($cel("span").addClass("help-block").text(error));
+}
+
+function selectThis()
+{
+	$(this).select();
+}
+
+
+$(function()
+{
+	var urlParts = location.href.split("#");
+	if(urlParts.length > 1)
+		if(urlParts[1] == "see" || urlParts[1] == "open" || urlParts[1] == "about" || urlParts[1] == "add")
+			$('ul.nav.nav-tabs a[href="#' + urlParts[1] + '"]').tab("show");
+
+
+	$get("dbid").focus();
+	$get("use_pwd_in_key").on("click", function() {
+		if (!$(this).is(":checked"))
+			$get("open_other_pwd").focus();
+	});
+	$get("add_use_pwd_in_key").on("click", function() {
+		if (!$(this).is(":checked"))
+			$get("add_other_pwd").focus();
+	});
+
+	$get("open_more").on("show.bs.collapse", function() {
+		$get("open_more_a").addClass("dropup");
+	})
+		.on("hidden.bs.collapse", function() {
+			$get("open_more_a").removeClass("dropup");
+		});
+
+	$get("add_more").on("show.bs.collapse", function() {
+		$get("add_more_a").addClass("dropup");
+	})
+		.on("hidden.bs.collapse", function() {
+			$get("add_more_a").removeClass("dropup");
+		});
+
+	if(typeof formErrors !== "undefined" && formErrors) {
+		for(var input in formErrors) {
+			showError($get(input), errorMessages[formErrors[input]]);
+		}
+	}
+
+	if(typeof debugTrace !== "undefined") {
+		$get("debugtrace").removeClass("hide").text("Debug trace:\n" + debugTrace);
+	}
+
+	var addDbidWatcher = new InputWatcher($get("add_dbid"));
+	var addKdbxfileWatcher = new InputWatcher($get("add_kdbx_file"));
+	var addMainPwdWatcher = new InputWatcher($get("add_main_pwd"));
+	var addUsePwdInKey = $get("add_use_pwd_in_key");
+	var addOtherPwd = $get("add_other_pwd");
+	var addOtherKeyfile = $get("add_other_keyfile");
+
+	$get("form_add").on("submit", function()
+	{
+		var ok = true;
+		if (!addUsePwdInKey.is(":checked") && !addOtherPwd.val() && !addOtherKeyfile.val())
+		{
+			$get("add_more").collapse('show');
+			showError(addUsePwdInKey);        
+			showError(addOtherPwd, errorMessages.nootherkey);
+			showError(addOtherKeyfile, errorMessages.nootherkey);
+			ok = false;
+		}
+		else
+		{
+			hideErrors(addUsePwdInKey);
+			hideErrors(addOtherPwd);
+			hideErrors(addOtherKeyfile);
+		}
+
+		ok = addDbidWatcher.isValid() && ok;
+		ok = addKdbxfileWatcher.isValid() && ok;
+		ok = addMainPwdWatcher.isValid() && ok;
+
+		if(!ok)
+			return false;
+	});
+
+	var dbidWatcher = new InputWatcher($get("dbid"));
+	var mainPwdWatcher = new InputWatcher($get("main_pwd"));
+	var otherPwd = $get("open_other_pwd");
+	var usePwdInKey = $get("use_pwd_in_key");
+
+	function loadPassword() {
+		var btn = $(this);
+		btn.button("loading");
+		var uuid = btn.data("uuid");
+		var container = btn.parent();
+
+		var dbidval = dbidWatcher.val();
+		var mainPwdval = mainPwdWatcher.val();
+		var otherPwdval = otherPwd.val();
+		var usePwdInKeyVal = usePwdInKey.is(':checked');
+		if (!dbidval || !mainPwdval || (!otherPwdval && !usePwdInKeyVal)) {
+			btn.button('reset');
+			$("open_tab_a").tab('show');
+			$get("form_open").submit();
+			return;
+		}
+
+		$.ajax({
+			data: {
+				dbid: dbidval,
+				main_pwd: mainPwdval,
+				use_pwd_in_key: usePwdInKeyVal,
+				open_other_pwd: otherPwdval,
+				uuid: uuid
+			},
+			method: 'POST',
+			dataType: 'json',
+			url: 'ajaxopen.php',
+			timeout: 20000
+		})
+			.fail(function(jqxhr, status, error) {
+				/*$get("see_results").empty().addClass("hide");
+				$get("see_alert").show();
+				btn.button('reset');*/
+				raiseError(error);
+			})
+			.done(function(answer) {
+				$get("debugtrace").empty().addClass("hide");
+				var status = answer.status;
+				if(status == 1 /* Success */)
+					container.html(answer.result)
+						.find(".selectOnFocus").on("focus", selectThis);
+				else if(status == 5 /* Password not found */)
+					container.html(answer.result);
+				else if(answer.result)
+					raiseError(answer.result);
+				if(answer.debug)
+					$get("debugtrace").removeClass("hide").text("Debug trace:\n" + answer.debug);
+				btn.button('reset');
+			});
+	}
+
+	$get("form_open").on("submit", function()
+	{
 		var button = $(this).find('button[type="submit"]');
 		button.button('loading');
-		var checker = new formChecker({"#dbid":null, "#mainPwd":null, "#openPwd1":null, "#usePwdForCK":null});
-		var dbidval = $("#dbid").val();
-		if(dbidval == "")
-			checker.setIfEmpty("#dbid", ["empty", "warning"]);
-		var mainPwdval = $("#mainPwd").val();
-		if(mainPwdval == "")
-			checker.setIfEmpty("#mainPwd", ["empty", "warning"]);
-		var otherPwdval = 	$("#openPwd1").val();
-		var usePwdForCKval = $("#usePwdForCK").is(':checked');
-		if(otherPwdval == "" && !usePwdForCKval){
-			$("#openmore").collapse('show');
-			checker.setIfEmpty("#openPwd1", ["nootherkey", "error"]);
-			checker.setIfEmpty("#usePwdForCK", ["", "error"]);
+
+		var ok = true;
+		if(!otherPwd.val() && !usePwdInKey.is(":checked"))
+		{
+			$get("open_more").collapse('show');
+			showError(otherPwd, errorMessages.nootherkey);
+			showError(usePwdInKey);
+			ok = false;
 		}
-		if(checker.isError){
-			checker.setStyle();
-			button.button('reset');
-			return false;
+		else
+		{
+			hideErrors(otherPwd);
+			hideErrors(usePwdInKey);
 		}
-		var data = "dbid="+dbidval+"&mainPwd="+mainPwdval+"&usePwdForCK="+
-			(usePwdForCKval ? "1" : "0")+"&openPwd1="+otherPwdval;
-		$.post("ajaxopen.php", data, function(response, status){
-			if(status == "success"){
-				if(response[0] == "1") {
-					checker.setStyle();
-					$("#seeAlert").hide();
-					$("#seeResult").show().html(response[1])
-						.find(".selectOnFocus").focus(function(){ $(this).select();	});
-					$("#mainTab li:eq(2)").removeClass("disabled").children("a").tab("show");
-				} else {
-					$("#seeResult").empty().hide();
-					$("#seeAlert").show();
-					if(response[0] == "2")
-						checker.setIfEmpty("#mainPwd", ["badpwd", "error"]);
-					else if(response[0] == "3")
-						checker.setIfEmpty("#dbid", ["nosuchid", "error"]);
-					else if(response[0] == "4")
-					{
-						if(("#" + response[1]) in checker.state)
-							checker.setIfEmpty("#" + response[1], ["empty", "warning"]);
+
+		ok = dbidWatcher.isValid() && ok;
+		ok = mainPwdWatcher.isValid() && ok;
+
+		if(ok)
+		{
+			$.ajax({
+				data: {
+					dbid: dbidWatcher.val(),
+					main_pwd: mainPwdWatcher.val(),
+					use_pwd_in_key: usePwdInKey.is(":checked"),
+					open_other_pwd: otherPwd.val()
+				},
+				method: 'POST',
+				dataType: 'json',
+				url: 'ajaxopen.php',
+				timeout: 20000
+			})
+				.fail(function(jqxhr, status, error) {
+					$get("see_results").empty().addClass("hide");
+					$get("see_alert").show();
+					button.button('reset');
+					raiseError(error);
+				})
+				.done(function(answer) {
+					$get("debugtrace").empty().addClass("hide");
+					var status = answer.status;
+					if(status == 1 /* Success */) {
+						hideErrors(otherPwd);
+						hideErrors(usePwdInKey);
+						$get("see_alert").hide();
+						var results = $get("see_results").removeClass("hide")
+							.html(answer.result);
+						results.find(".selectOnFocus").on("focus", selectThis);
+						results.find(".passwordLoader").on("click", loadPassword);
+						$get("see_tab_li").removeClass("disabled").children("a").tab("show");
+					} else {
+						$get("see_results").empty().addClass("hide");
+						$get("see_alert").show();
+						if(status === 0 /* fail */)
+							raiseError(answer.result);
+						else if(status == 2 /* bad password */)
+							showError(mainPwdWatcher.input, errorMessages.badpwd);
+						else if(status == 3 /* no such id */)
+							showError(dbidWatcher.input, errorMessages.nosuchid);
+						else if(status == 4 /* something is empty */)
+						{
+							var element = document.getElementById(answer.result);
+							if(element)
+								showError($(element), errorMessages.empty);
+						}
+						if(answer.debug)
+							$get("debugtrace").removeClass("hide").text("Debug trace:\n" + answer.debug);
 					}
-					else if(response[0] == "0")
-						raiseError(response[1]);
-					checker.setStyle();
-				}
-				if(response[2] != "")
-					$("#debugtrace").show().html("Debug trace:\n"+response[2]);
-				else
-					$("#debugtrace").empty().hide();
-			}
-			button.button('reset');
-		}, 'json');
-		return false;
-	})
-});
-
-
-function cleanAll(){
-	$("#seeResult").empty().hide();
-	$("#seeAlert").show();
-	$("#debugtrace").empty().hide();
-	$("#formOpen").get(0).reset();
-	$("#formAdd").get(0).reset();
-	return false;
-}
-
-function loadPassword(uuid){
-	var container = $("#pwd_" + uuid);
-	container.children('button').button('loading');
-	var dbidval = $("#dbid").val();
-	var mainPwdval = $("#mainPwd").val();
-	var otherPwdval = 	$("#openPwd1").val();
-	var usePwdForCKval = $("#usePwdForCK").is(':checked');
-	if(dbidval == "" || mainPwdval == "" || (otherPwdval == "" && !usePwdForCKval))
-	{
-		container.children('button').button('reset');
-		$("#mainTab li:eq(0) a").tab('show');
-		$("#formOpen").submit();
-		return;
-	}
-	var data = "dbid="+dbidval+"&mainPwd="+mainPwdval+"&usePwdForCK="+
-		(usePwdForCKval ? "1" : "0")+"&openPwd1="+otherPwdval+"&uuid="+uuid;
-	$.post("ajaxopen.php?r=p", data, function(response, status){
-		if(status == "success"){
-			if(response[0] == "1")
-				container.html(response[1])
-					.find(".selectOnFocus")
-					.focus(function(){ $(this).select(); });
-			else if(response[0] == "5")
-				container.html(response[1]);
-			else if(response[1] != "")
-				raiseError(response[1]);
-			if(response[2] != "")
-				$("#debugtrace").show().html("Debug trace:\n"+response[2]);
-			else
-				$("#debugtrace").empty().hide();
+					button.button('reset');
+				});
 		}
-		container.children('button').button('reset');
-	}, 'json');
-}
+		else
+			button.button('reset');
+		return false;
+	});
+
+	$get("btn_clean_all").on("click", function() {
+		$get("see_results").empty().addClass("hide");
+		$get("see_alert").show();
+		$get("see_tab_li").addClass("disabled");
+		$get("debugtrace").empty().hide();
+		$get("form_open").get(0).reset();
+		$get("form_add").get(0).reset();
+		return false;
+	});
+});
