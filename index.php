@@ -2,8 +2,6 @@
 
 require_once "keepassphpui/main.php";
 
-define("MAX_FILE_SIZE", 100000);
-
 $hasAddSuccess = false;
 
 // give javascript error messages for the selected language
@@ -182,14 +180,13 @@ foreach($availableLangs as &$lang)
 												<input type="password" class="form-control" id="main_pwd" name="main_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
 											</div>
 										</div>
-										<p><a data-toggle="collapse" href="#open_more" aria-expanded="false" aria-controls="open_more" id="open_more_a"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_MORE); ?> <span class="caret"></span></a></p>
-										<div id="open_more" class="collapse">
-											<div class="form-group">
-												<label class="col-sm-4 control-label" for="use_pwd_in_key"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_USE_AS_KEY); ?></label>
-												<div class="col-sm-6">
-													<input type="checkbox" id="use_pwd_in_key" name="use_pwd_in_key" checked="checked" value="1" />
-												</div>
+										<div class="form-group">
+											<label class="col-sm-7 control-label" for="use_pwd_in_key"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_USE_AS_KEY); ?></label>
+											<div class="col-sm-1">
+												<input type="checkbox" id="use_pwd_in_key" name="use_pwd_in_key" checked="checked" value="1" />
 											</div>
+										</div>
+										<div id="open_more" class="collapse">
 											<div class="form-group">
 												<label class="col-sm-4 control-label" for="open_other_pwd"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_OTHER_PWD_LABEL); ?></label>
 												<div class="col-sm-6">
@@ -212,7 +209,7 @@ foreach($availableLangs as &$lang)
 						<div class="row">
 							<div class="col-sm-10 col-sm-offset-1">
 								<form class="form-horizontal" method="post" action="./?<?php echo $url_lang_param; ?>p=add" enctype="multipart/form-data" id="form_add">
-									<input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+									<input type="hidden" name="<?php echo MAX_FILE_SIZE; ?>" value="100000" />
 									<fieldset>
 										<legend><?php echo KPHPUI::l(KPHPUI::LANG_ADD_TITLE); ?></legend>
 										<div class="form-group">
@@ -233,25 +230,24 @@ foreach($availableLangs as &$lang)
 												<input type="password" class="form-control" id="add_main_pwd" name="add_main_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
 											</div>
 										</div>
-										<p><a data-toggle="collapse" href="#add_more" aria-expanded="false" aria-controls="add_more" id="add_more_a"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_MORE); ?> <span class="caret"></span></a></p>
-										<div id="add_more" class="collapse">
-											<div class="form-group">
-												<label class="col-sm-4 control-label" for="add_use_pwd_in_key"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_USE_AS_KEY); ?></label>
-												<div class="col-sm-6">
-													<input type="checkbox" id="add_use_pwd_in_key" name="add_use_pwd_in_key" checked="checked" value="1" />
-												</div>
+										<div class="form-group">
+											<label class="col-sm-7 control-label" for="add_use_pwd_in_key"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_USE_AS_KEY); ?></label>
+											<div class="col-sm-1">
+												<input type="checkbox" id="add_use_pwd_in_key" name="add_use_pwd_in_key" checked="checked" value="1" />
 											</div>
+										</div>
+										<div id="add_more" class="collapse">
 											<div class="form-group">
 												<label class="col-sm-4 control-label" for="add_other_pwd"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_OTHER_PWD_LABEL); ?></label>
 												<div class="col-sm-6">
 													<input type="password" class="form-control" id="add_other_pwd" name="add_other_pwd" placeholder="<?php echo KPHPUI::l(KPHPUI::LANG_PWD_PLACEHOLDER); ?>" />
 												</div>
 											</div>
-											<div class="form-group">
-												<label class="col-sm-4 control-label" for="add_other_keyfile"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_OTHER_KEYFILE_LABEL); ?></label>
-												<div class="col-sm-6">
-													<input type="file" id="add_other_keyfile" name="add_other_keyfile" />
-												</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label" for="add_other_keyfile"><?php echo KPHPUI::l(KPHPUI::LANG_ADD_OTHER_KEYFILE_LABEL); ?></label>
+											<div class="col-sm-6">
+												<input type="file" id="add_other_keyfile" name="add_other_keyfile" />
 											</div>
 										</div>
 										<div class="form-group">
@@ -327,7 +323,7 @@ if($hasAddSuccess) {
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js?3.3.6"></script>
 	<script type="text/javascript"><?php echo $javascriptContent; ?></script>
-	<script src="js/main.js?1.0"></script>
+	<script src="js/main.js?1.1"></script>
 </body>
 
 </html>

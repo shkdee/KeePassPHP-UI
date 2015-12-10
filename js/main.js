@@ -107,26 +107,22 @@ $(function()
 	$get("dbid").focus();
 	$get("use_pwd_in_key").on("click", function() {
 		if (!$(this).is(":checked"))
+		{
+			$get("open_more").collapse("show");
 			$get("open_other_pwd").focus();
+		}
+		else
+			$get("open_more").collapse("hide");
 	});
 	$get("add_use_pwd_in_key").on("click", function() {
 		if (!$(this).is(":checked"))
+		{
+			$get("add_more").collapse("show");
 			$get("add_other_pwd").focus();
+		}
+		else
+			$get("add_more").collapse("hide");
 	});
-
-	$get("open_more").on("show.bs.collapse", function() {
-		$get("open_more_a").addClass("dropup");
-	})
-		.on("hidden.bs.collapse", function() {
-			$get("open_more_a").removeClass("dropup");
-		});
-
-	$get("add_more").on("show.bs.collapse", function() {
-		$get("add_more_a").addClass("dropup");
-	})
-		.on("hidden.bs.collapse", function() {
-			$get("add_more_a").removeClass("dropup");
-		});
 
 	if(typeof formErrors !== "undefined" && formErrors) {
 		for(var input in formErrors) {
@@ -151,14 +147,12 @@ $(function()
 		if (!addUsePwdInKey.is(":checked") && !addOtherPwd.val() && !addOtherKeyfile.val())
 		{
 			$get("add_more").collapse('show');
-			showError(addUsePwdInKey);        
 			showError(addOtherPwd, errorMessages.nootherkey);
 			showError(addOtherKeyfile, errorMessages.nootherkey);
 			ok = false;
 		}
 		else
 		{
-			hideErrors(addUsePwdInKey);
 			hideErrors(addOtherPwd);
 			hideErrors(addOtherKeyfile);
 		}
@@ -188,7 +182,7 @@ $(function()
 		var usePwdInKeyVal = usePwdInKey.is(':checked');
 		if (!dbidval || !mainPwdval || (!otherPwdval && !usePwdInKeyVal)) {
 			btn.button('reset');
-			$("open_tab_a").tab('show');
+			$get("open_tab_a").tab('show');
 			$get("form_open").submit();
 			return;
 		}
@@ -238,14 +232,10 @@ $(function()
 		{
 			$get("open_more").collapse('show');
 			showError(otherPwd, errorMessages.nootherkey);
-			showError(usePwdInKey);
 			ok = false;
 		}
 		else
-		{
 			hideErrors(otherPwd);
-			hideErrors(usePwdInKey);
-		}
 
 		ok = dbidWatcher.isValid() && ok;
 		ok = mainPwdWatcher.isValid() && ok;
@@ -275,7 +265,6 @@ $(function()
 					var status = answer.status;
 					if(status == 1 /* Success */) {
 						hideErrors(otherPwd);
-						hideErrors(usePwdInKey);
 						$get("see_alert").hide();
 						var results = $get("see_results").removeClass("hide")
 							.html(answer.result);
