@@ -45,6 +45,7 @@ $lang_en = array(
 	/* LANG_SEE_ENTRY_URL */ "URL",
 	/* LANG_SEE_ENTRY_USERNAME */ "Username",
 	/* LANG_SEE_ENTRY_PASSWORD */ "Password",
-	/* LANG_SEE_ENTRY_LOAD */ "Show"
+	/* LANG_SEE_ENTRY_LOAD */ "Show",
+	/* LANG_TAB_CLOSE_TOOLTIP */ "Close the opened database"
 );
 ?>

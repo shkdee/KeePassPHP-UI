@@ -52,6 +52,7 @@ abstract class KPHPUI
 	const LANG_SEE_ENTRY_USERNAME      = 43;
 	const LANG_SEE_ENTRY_PASSWORD      = 44;
 	const LANG_SEE_ENTRY_LOAD          = 45;
+	const LANG_TAB_CLOSE_TOOLTIP       = 46;
 
 
 	public static $availableLangData = array();

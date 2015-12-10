@@ -159,7 +159,7 @@ foreach($availableLangs as &$lang)
 	echo '<li><a href="?l=' . $lang . $url_nolang_params . '">' . $lang . '</a></li>';
 						?></ul>
 					</li>
-					<li role="presentation"><a type="button" id="btn_clean_all" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></a></li>
+					<li role="presentation"><a type="button" id="btn_clean_all" class="close" aria-label="Close" title="<?php echo KPHPUI::l(KPHPUI::LANG_TAB_CLOSE_TOOLTIP); ?>"><span aria-hidden="true">&times;</span></a></li>
 				</ul>
 				<div class="tab-content">
 					<div role="tabpanel" class="tab-pane fade<?php if($p == "open") echo ' active in'; ?>" id="open">
