@@ -13,7 +13,7 @@ The `keepassphp` directory (from the KeePassPHP project) must be added next to t
 Web server configuration
 -------------------
 
-The directories `css` and `js` contain only web resources, so you may want to configure your web server to cache those files and serve them statically. Beside these directories, the web server should only be able to serve `index.php` and `ajaxopen.php`; you can deny the access to other files through the web server.
+The directories `icons`, `css` and `js` contain only web resources, so you may want to configure your web server to cache those files and serve them statically. Beside these directories, the web server should only be able to serve `index.php` and `ajaxopen.php`; you can deny the access to other files through the web server.
 
 
 Translation
