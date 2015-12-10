@@ -178,6 +178,19 @@ abstract class KPHPUI
 	{
 		return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 	}
+
+	/**
+	 * Returns the filename of a KeePass built-in icon from its id.
+	 */
+	public static function iconPath($iconid)
+	{
+		if($iconid == null || strlen($iconid) == 0 || !is_numeric($iconid))
+			return null;
+		$id = intval($iconid);
+		return $id >= 0 && $id <= 68
+			? "icons/C" . ($id < 10 ? "0" : "") . $id . ".png"
+			: null;
+	}
 }
 
 ?>

@@ -81,7 +81,7 @@ elseif(!$usePwdInKey && empty($otherPwd))
 else
 {
 	require_once KEEPASSPHP_LOCATION;
-	KeePassPHP::init(KEEPASSPHP_DEBUG);
+	KeePassPHP::init(dirname(KEEPASSPHP_LOCATION), KEEPASSPHP_DEBUG);
 
 	if(KeePassPHP::exists($dbid))
 	{
@@ -107,7 +107,11 @@ else
 					. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_PASSWORD) . '</th></tr></thead><tbody>';
 				foreach($db->getEntries() as $uuid => $entry)
 				{
-					$icon = $db->getIconSrc($entry[Database::KEY_CUSTOMICON]);
+					$icon = $entry[Database::KEY_CUSTOMICON];
+					if(!empty($icon))
+						$icon = $db->getIconSrc($icon);
+					if(empty($icon) && isset($entry[Database::KEY_ICON]))
+						$icon = KPHPUI::iconPath($entry[Database::KEY_ICON]);
 					$s.= '<tr><td>' . ($icon == null ? '' : '<img src="' . KPHPUI::htmlify($icon) . '" />') . '</td>';
 					$s.= '<td>' . KPHPUI::htmlify($entry[Database::KEY_TITLE]) . '</td>';
 

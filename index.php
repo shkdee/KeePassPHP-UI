@@ -68,7 +68,7 @@ if($submitted == "add")
 		// every parameter seems to be fine:
 		// include KeePassPHP and try to add the database 
 		require_once KEEPASSPHP_LOCATION;
-		KeePassPHP::init(KEEPASSPHP_DEBUG);
+		KeePassPHP::init(dirname(KEEPASSPHP_LOCATION), KEEPASSPHP_DEBUG);
 
 		if(!KeePassPHP::exists($dbid) || KeePassPHP::checkPassword($dbid, $mainPwd))
 		{
