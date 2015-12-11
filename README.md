@@ -1,7 +1,7 @@
 KeePassPHP-UI
 =============
 
-A nice user interface for KeePassPHP, built with jQuery (2.x) and Bootstrap (3.3.6), available in several languages (French and English so far). KeePassPHP can store and read KeePass password databases, so that you can access your passwords from any device, simply through the internet. It never stores your text password - in agreement with KeePass philosophy - so your password database is always kept encrypted, and only you can access it.
+A nice user interface for KeePassPHP, built with jQuery (2.x) and Bootstrap (3.3.6), available in several languages (French and English so far). KeePassPHP can store and read KeePass password databases, so that you can access your passwords from any device, simply through a web browser. It never stores your text password - in agreement with the KeePass philosophy - so your password database is always kept encrypted, and only you can access it.
 
 
 How to use it?
