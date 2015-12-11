@@ -3,7 +3,7 @@
 require_once "keepassphpui/main.php";
 
 /**
- * A class that manage the answer that will be sent as a stringified json
+ * A class that manages the answer that will be sent as a stringified json
  * object. This object has three properties: 'status', containing an integer
  * describing the result; 'result', containing a string which is the result;
  * and 'debug' if there is debug information to send.
