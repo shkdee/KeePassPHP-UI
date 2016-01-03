@@ -36,7 +36,8 @@ if($submitted == "add")
 	$kdbxFileStatus = KPHPUI::getFile("add_kdbx_file", $kdbxFile);
 	$keyFile = null;
 	$keyFileStatus = KPHPUI::getFile("add_other_keyfile", $keyFile);
-	$usePwdInKey = !empty(KPHPUI::getPost("add_use_pwd_in_key"));
+	$usePwdInKey = KPHPUI::getPost("add_use_pwd_in_key");
+	$usePwdInKey = !empty($usePwdInKey);
 
 	$ok = true;
 	if(empty($dbid))
