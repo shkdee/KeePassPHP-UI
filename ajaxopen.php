@@ -2,6 +2,9 @@
 
 require_once "keepassphpui/main.php";
 
+// alias KeePassPHP
+use \KeePassPHP\KeePassPHP as KeePassPHP;
+
 /**
  * A class that manages the answer that will be sent as a stringified json
  * object. This object has three properties: 'status', containing an integer
@@ -65,6 +68,66 @@ class AjaxAnswer
 	}
 }
 
+function visitDatabase(\KeePassPHP\Database $db)
+{
+	$s = '<table class="table table-hover form-inline"><thead><tr><th> </th><th>'
+		. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_TITLE) . '</th><th>'
+		. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_URL) . '</th><th>'
+		. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_USERNAME) . '</th><th>'
+		. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_PASSWORD) . '</th></tr></thead><tbody>';
+
+	$groups = $db->getGroups();
+	if($groups != null)
+	{
+		foreach($groups as &$g)
+			$s .= visitGroup($db, $g);
+	}
+
+	return $s . '</tbody></table>';
+}
+
+function visitGroup(\KeePassPHP\Database $db, \KeePassPHP\Group $group)
+{
+	$s = "";
+	if($group->groups != null)
+	{
+		foreach($group->groups as &$g)
+			$s .= visitGroup($db, $g);
+	}
+	if($group->entries != null)
+	{
+		foreach($group->entries as &$e)
+			$s .= visitEntry($db, $e);
+	}
+	return $s;
+}
+
+function visitEntry(\KeePassPHP\Database $db, \KeePassPHP\Entry $entry)
+{
+	$icon = null;
+	if(!empty($entry->$customIcon))
+		$icon = $db->getCustomIcon($entry->$customIcon);
+	if(empty($icon) && !empty($entry->icon))
+		$icon = KPHPUI::iconPath($entry->icon);
+
+	$uuid = bin2hex(base64_decode($entry->uuid));
+
+	$url = $entry->url;
+	$protoSep = strpos($url, "://");
+	$proto = $protoSep === false ? null : substr($url, 0, $protoSep);
+	$isHttp = $proto == "http" || $proto == "https";
+	$displayed = $isHttp ? substr($url, $protoSep + 3) : $url;
+
+	return '<tr><td>' . ($icon == null ? '' : '<img src="' . KPHPUI::htmlify($icon) . '" />')
+		. '</td><td>' . KPHPUI::htmlify($entry->title) . '</td>'
+		. '<td>' . ($isHttp ? '<a href="' : '<span title="') . KPHPUI::htmlify($url) . '">'
+		. KPHPUI::htmlify(strlen($displayed) > 20 ? substr($displayed, 0, 17) . '...' : $displayed)
+		. ($isHttp ? '</a>' : '</span>') . '</td>'
+		. '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::htmlify($entry->username) . '" /></td>'
+		. '<td id="pwd_' . $uuid . '"><button type="button" class="btn btn-primary passwordLoader" data-uuid="'
+		. $uuid . '" autocomplete="off" data-loading-text="...">' . KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_LOAD) . '</button></td></tr>';
+}
+
 $answer = new AjaxAnswer();
 
 $dbid = KPHPUI::getPost("dbid");
@@ -81,15 +144,17 @@ elseif(!$usePwdInKey && empty($otherPwd))
 else
 {
 	require_once KEEPASSPHP_LOCATION;
-	KeePassPHP::init(dirname(KEEPASSPHP_LOCATION), KEEPASSPHP_DEBUG);
+	KeePassPHP::init(null, KEEPASSPHP_DEBUG);
 
-	if(KeePassPHP::exists($dbid))
+	if(KeePassPHP::existsKphpDB($dbid))
 	{
-		$db = KeePassPHP::get($dbid, $mainPwd, $usePwdInKey ? $mainPwd : $otherPwd);
+		$db = KeePassPHP::getDatabase($dbid,
+			$usePwdInKey ? KeePassPHP::extractHalfPassword($mainPwd) : $mainPwd,
+			$usePwdInKey ? $mainPwd : $otherPwd,
+			false);
 		if($db != null)
 		{
 			$uuid = KPHPUI::getPost("uuid");
-
 			if(!empty($uuid))
 			{
 				$pwd = $db->getPassword($uuid);
@@ -99,40 +164,7 @@ else
 					$answer->set(AjaxAnswer::PASSWORD_NOT_FOUND, '<span class="label label-danger">' . KPHPUI::l(KPHPUI::LANG_SEE_PWD_DOES_NOT_EXIST) . '</span>');
 			}
 			else
-			{
-				$s = '<table class="table table-hover form-inline"><thead><tr><th> </th><th>'
-					. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_TITLE) . '</th><th>'
-					. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_URL) . '</th><th>'
-					. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_USERNAME) . '</th><th>'
-					. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_PASSWORD) . '</th></tr></thead><tbody>';
-				foreach($db->getEntries() as $uuid => $entry)
-				{
-					$icon = $entry[Database::KEY_CUSTOMICON];
-					if(!empty($icon))
-						$icon = $db->getIconSrc($icon);
-					if(empty($icon) && isset($entry[Database::KEY_ICON]))
-						$icon = KPHPUI::iconPath($entry[Database::KEY_ICON]);
-					$s.= '<tr><td>' . ($icon == null ? '' : '<img src="' . KPHPUI::htmlify($icon) . '" />') . '</td>';
-					$s.= '<td>' . KPHPUI::htmlify($entry[Database::KEY_TITLE]) . '</td>';
-
-					$url = $entry[Database::KEY_URL];
-					$protoSep = strpos($url, "://");
-					$proto = $protoSep === false ? null : substr($url, 0, $protoSep);
-					$isHttp = $proto == "http" || $proto == "https";
-					$displayed = $isHttp ? substr($url, $protoSep + 3) : $url;
-
-					$s .= '<td>' . ($isHttp ? '<a href="' : '<span title="') . KPHPUI::htmlify($url) . '">'
-						. KPHPUI::htmlify(strlen($displayed) > 20 ? substr($displayed, 0, 17) . '...' : $displayed)
-						. ($isHttp ? '</a>' : '</span>') . '</td>';
-
-
-					$s.= '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::htmlify($entry[Database::KEY_USERNAME]) . '" /></td>';
-					$s.= '<td id="pwd_' . $uuid . '"><button type="button" class="btn btn-primary passwordLoader" data-uuid="'
-						. $uuid . '" autocomplete="off" data-loading-text="...">' . KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_LOAD) . '</button></td></tr>';
-				}
-				$s .= '</tbody></table>';
-				$answer->set(AjaxAnswer::SUCCESS, $s);
-			}
+				$answer->set(AjaxAnswer::SUCCESS, visitDatabase($db));
 		}
 		else
 			$answer->set(AjaxAnswer::BAD_PASSWORD);
