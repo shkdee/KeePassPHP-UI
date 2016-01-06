@@ -105,8 +105,8 @@ function visitGroup(\KeePassPHP\Database $db, \KeePassPHP\Group $group)
 function visitEntry(\KeePassPHP\Database $db, \KeePassPHP\Entry $entry)
 {
 	$icon = null;
-	if(!empty($entry->$customIcon))
-		$icon = $db->getCustomIcon($entry->$customIcon);
+	if(!empty($entry->customIcon))
+		$icon = $db->getCustomIcon($entry->customIcon);
 	if(empty($icon) && !empty($entry->icon))
 		$icon = KPHPUI::iconPath($entry->icon);
 
@@ -148,16 +148,17 @@ else
 
 	if(KeePassPHP::existsKphpDB($dbid))
 	{
+		$uuid = KPHPUI::getPost("uuid");
+		$getPasswords = !empty($uuid);
 		$db = KeePassPHP::getDatabase($dbid,
 			$usePwdInKey ? KeePassPHP::extractHalfPassword($mainPwd) : $mainPwd,
 			$usePwdInKey ? $mainPwd : $otherPwd,
-			false);
+			$getPasswords);
 		if($db != null)
 		{
-			$uuid = KPHPUI::getPost("uuid");
-			if(!empty($uuid))
+			if($getPasswords)
 			{
-				$pwd = $db->getPassword($uuid);
+				$pwd = $db->getPassword(base64_encode(hex2bin($uuid)));
 				if($pwd != null)
 					$answer->set(AjaxAnswer::SUCCESS, '<input type="text" class="verysmall selectOnFocus form-control" value="' . KPHPUI::htmlify($pwd) . '" style="font-size:3px !important;"/>');
 				else
@@ -172,8 +173,8 @@ else
 	else
 		$answer->set(AjaxAnswer::NO_SUCH_ID);
 
-	if(KeePassPHP::$isError)
-		$answer>setDebug(KeePassPHP::$errordump);
+	if(KeePassPHP::$debug && !empty(KeePassPHP::$debugData))
+		$answer->setDebug(KeePassPHP::$debugData);
 }
 
 $answer->send();
