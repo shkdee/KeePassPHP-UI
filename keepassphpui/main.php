@@ -6,7 +6,7 @@ define('KEEPASSPHP_LOCATION', 'keepassphp/keepassphp.php');
 // Debug mode for KeePassPHP
 define('KEEPASSPHP_DEBUG', false);
 
-// The maximum accepted size for uploaded files, in bytes. This is rougly 1 Mb,
+// The maximum accepted size for uploaded files, in bytes. This is roughly 1 Mb
 // and should be okay for regular password databases. You may want to change
 // it if you expect specifically heavy databases.
 define("MAX_FILE_SIZE", 1048576);
@@ -32,7 +32,7 @@ KPHPUI::registerLang("en", $lang_en);
  * language selection *
  **********************/
 
-// selects the language, depending on the query string or HTTP header
+// select the language, depending on the query string or HTTP header
 if(!isset($_GET["l"]) || !KPHPUI::setLang($_GET["l"]))
 	KPHPUI::setLang(KPHPUI::getPreferredLanguage($_SERVER["HTTP_ACCEPT_LANGUAGE"]));
 
