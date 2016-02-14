@@ -204,7 +204,7 @@ foreach($availableLangs as &$lang)
 										<div class="form-group">
 											<div class="col-sm-offset-4 col-sm-6">
 												<input type="hidden" name="submitted" value="open" />
-												<button type="submit" class="btn btn-primary" data-loading-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_LOADING); ?>" autocomplete="off"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND); ?></button>
+												<button type="submit" class="btn btn-primary" data-andagain-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_ANDAGAIN); ?>" data-tryagain-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_TRYAGAIN); ?>" data-loading-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_LOADING); ?>" autocomplete="off"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND); ?></button>
 											</div>
 										</div>
 									</fieldset>

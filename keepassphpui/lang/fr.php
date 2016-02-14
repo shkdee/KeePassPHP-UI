@@ -46,6 +46,9 @@ $lang_fr = array(
 	/* LANG_SEE_ENTRY_USERNAME */ "Nom d'utilisateur",
 	/* LANG_SEE_ENTRY_PASSWORD */ "Mot de passe",
 	/* LANG_SEE_ENTRY_LOAD */ "Voir",
-	/* LANG_TAB_CLOSE_TOOLTIP */ "Fermer la base de données ouverte"
+	/* LANG_TAB_CLOSE_TOOLTIP */ "Fermer la base de données ouverte",
+	/* LANG_OPEN_SEND_TRYAGAIN */ "Essayer de nouveau",
+	/* LANG_OPEN_SEND_ANDAGAIN */ "... et encore",
+	/* LANG_SEE_ENTRY_TRYAGAIN */ "Réessayer"
 );
 ?>

@@ -170,6 +170,10 @@ $(function()
 	var otherPwd = $get("open_other_pwd");
 	var usePwdInKey = $get("use_pwd_in_key");
 
+	var loadPasswordTimeout = 20000;
+	var openDatabaseRound = 0;
+	var openDatabaseTimeout = 20000;
+
 	function loadPassword() {
 		var btn = $(this);
 		btn.button("loading");
@@ -198,13 +202,19 @@ $(function()
 			method: 'POST',
 			dataType: 'json',
 			url: 'ajaxopen.php' + ajaxQueryString,
-			timeout: 20000
+			timeout: loadPasswordTimeout
 		})
 			.fail(function(jqxhr, status, error) {
-				/*$get("see_results").empty().addClass("hide");
-				$get("see_alert").show();
-				btn.button('reset');*/
-				raiseError(error);
+				if(status == "timeout")
+				{
+					btn.button('tryagain');
+					loadPasswordTimeout = loadPasswordTimeout*2;
+				}
+				else
+				{
+					raiseError(status + ": " + error);
+					btn.button('reset');
+				}
 			})
 			.done(function(answer) {
 				$get("debugtrace").empty().addClass("hide");
@@ -252,13 +262,24 @@ $(function()
 				method: 'POST',
 				dataType: 'json',
 				url: 'ajaxopen.php' + ajaxQueryString,
-				timeout: 20000
+				timeout: openDatabaseTimeout
 			})
 				.fail(function(jqxhr, status, error) {
 					$get("see_results").empty().addClass("hide");
 					$get("see_alert").show();
-					button.button('reset');
-					raiseError(error);
+					if(status == 'timeout')
+					{
+						button.button(openDatabaseRound === 0 ?
+							'tryagain' : 'andagain');
+						openDatabaseRound++;
+						openDatabaseTimeout = openDatabaseTimeout*2;
+					}
+					else
+					{
+						openDatabaseRound = 0;
+						button.button('reset');
+						raiseError(status + ": " + error);
+					}
 				})
 				.done(function(answer) {
 					$get("debugtrace").empty().addClass("hide");
@@ -289,11 +310,15 @@ $(function()
 						if(answer.debug)
 							$get("debugtrace").removeClass("hide").text("Debug trace:\n" + answer.debug);
 					}
+					openDatabaseRound = 0;
 					button.button('reset');
 				});
 		}
 		else
+		{
+			openDatabaseRound = 0;
 			button.button('reset');
+		}
 		return false;
 	});
 
