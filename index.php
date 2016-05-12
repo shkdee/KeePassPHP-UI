@@ -330,7 +330,7 @@ if($hasAddSuccess) {
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js?3.3.6"></script>
 	<script type="text/javascript"><?php echo $javascriptContent; ?></script>
-	<script src="js/main.js?1.1"></script>
+	<script src="js/main.js?1.2"></script>
 </body>
 
 </html>

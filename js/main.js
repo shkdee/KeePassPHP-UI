@@ -170,9 +170,10 @@ $(function()
 	var otherPwd = $get("open_other_pwd");
 	var usePwdInKey = $get("use_pwd_in_key");
 
-	var loadPasswordTimeout = 20000;
+	var loadPasswordTimeout = 10000;
 	var openDatabaseRound = 0;
-	var openDatabaseTimeout = 20000;
+	var openDatabaseTimeout = 10000;
+	var maxTimeoutWithNoTryAgain = 40000;
 
 	function loadPassword() {
 		var btn = $(this);
@@ -207,8 +208,11 @@ $(function()
 			.fail(function(jqxhr, status, error) {
 				if(status == "timeout")
 				{
-					btn.button('tryagain');
 					loadPasswordTimeout = loadPasswordTimeout*2;
+					if(loadPasswordTimeout <= maxTimeoutWithNoTryAgain)
+						btn.click();
+					else
+						btn.button('tryagain');
 				}
 				else
 				{
@@ -269,10 +273,15 @@ $(function()
 					$get("see_alert").show();
 					if(status == 'timeout')
 					{
-						button.button(openDatabaseRound === 0 ?
-							'tryagain' : 'andagain');
-						openDatabaseRound++;
 						openDatabaseTimeout = openDatabaseTimeout*2;
+						if(openDatabaseTimeout <= maxTimeoutWithNoTryAgain)
+							button.click();
+						else
+						{
+							button.button(openDatabaseRound === 0 ?
+								'tryagain' : 'andagain');
+							openDatabaseRound++;
+						}
 					}
 					else
 					{
