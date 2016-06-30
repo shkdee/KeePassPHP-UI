@@ -20,6 +20,10 @@ require_once "kphpui.php";
  *************************/
 
 // register french
+require_once "lang/de.php";
+KPHPUI::registerLang("de", $lang_fr);
+
+// register french
 require_once "lang/fr.php";
 KPHPUI::registerLang("fr", $lang_fr);
 
