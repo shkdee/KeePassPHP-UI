@@ -1,5 +1,5 @@
 <?php
-$lang_en = array(
+$lang_de = array(
 	/* LANG_PAGE_TITLE */ "KeePassPHP",
 	/* LANG_TAB_OPEN */ "Öffnen",
 	/* LANG_TAB_ADD */ "Hinzufügen",
