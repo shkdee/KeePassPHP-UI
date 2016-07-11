@@ -19,17 +19,17 @@ require_once "kphpui.php";
  * Languages declaration *
  *************************/
 
-// register french
+// register german
 require_once "lang/de.php";
-KPHPUI::registerLang("de", $lang_fr);
-
-// register french
-require_once "lang/fr.php";
-KPHPUI::registerLang("fr", $lang_fr);
+KPHPUI::registerLang("de", $lang_de);
 
 // register english
 require_once "lang/en.php";
 KPHPUI::registerLang("en", $lang_en);
+
+// register french
+require_once "lang/fr.php";
+KPHPUI::registerLang("fr", $lang_fr);
 
 
 /**********************
