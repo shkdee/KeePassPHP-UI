@@ -204,7 +204,8 @@ foreach($availableLangs as &$lang)
 										<div class="form-group">
 											<div class="col-sm-offset-4 col-sm-6">
 												<input type="hidden" name="submitted" value="open" />
-												<button type="submit" class="btn btn-primary" data-andagain-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_ANDAGAIN); ?>" data-tryagain-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_TRYAGAIN); ?>" data-loading-text="<?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_LOADING); ?>" autocomplete="off"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND); ?></button>
+												<button type="submit" class="btn btn-primary"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND); ?></button>
+												<button class="btn btn-primary disabled loading-button" disabled="disabled"><?php echo KPHPUI::l(KPHPUI::LANG_OPEN_SEND_LOADING); ?>&nbsp;<span class="spinner"></span></button>
 											</div>
 										</div>
 									</fieldset>
@@ -301,6 +302,24 @@ foreach($availableLangs as &$lang)
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" data-dismiss="modal"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_CLOSE); ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="modal_timeout" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h3><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_TIMEOUT_TITLE); ?></h3>
+				</div>
+				<div class="modal-body">
+					<p class="alert alert-warning"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_TIMEOUT_TEXT); ?></p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="modal_timeout_goon"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_TIMEOUT_TRYAGAIN); ?></button>
+					&nbsp;
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="modal_timeout_cancel"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_TIMEOUT_CANCEL); ?></button>
 				</div>
 			</div>
 		</div>

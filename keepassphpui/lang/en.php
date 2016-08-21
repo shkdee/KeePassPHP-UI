@@ -47,8 +47,9 @@ $lang_en = array(
 	/* LANG_SEE_ENTRY_PASSWORD */ "Password",
 	/* LANG_SEE_ENTRY_LOAD */ "Show",
 	/* LANG_TAB_CLOSE_TOOLTIP */ "Close the opened database",
-	/* LANG_OPEN_SEND_TRYAGAIN */ "Try again",
-	/* LANG_OPEN_SEND_ANDAGAIN */ "... and again",
-	/* LANG_SEE_ENTRY_TRYAGAIN */ "Re-try"
+	/* LANG_MODAL_TIMEOUT_TITLE */ "It's taking a long time...",
+	/* LANG_MODAL_TIMEOUT_TEXT */ "The server is taking a long time to answer. It may mean that the password database is hard to decrypt, in which case everything is normal and you should just wait a bit more. But it may also be due to a poor connection between you and the server. You can either try again and wait longer, or cancel.",
+	/* LANG_MODAL_TIMEOUT_TRYAGAIN */ "Try again",
+	/* LANG_MODAL_TIMEOUT_CANCEL */ "Cancel"
 );
 ?>

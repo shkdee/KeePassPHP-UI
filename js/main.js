@@ -93,6 +93,25 @@ function selectThis()
 	$(this).select();
 }
 
+function setupLoading(button)
+{
+	var loadingButton = button.siblings('button.loading-button');
+	if(loadingButton)
+	{
+		button.hide();
+		loadingButton.show();
+	}
+	return loadingButton;
+}
+
+function resetLoading(button, loadingButton)
+{
+	if(!loadingButton)
+		return;
+	button.show();
+	loadingButton.hide();
+}
+
 
 $(function()
 {
@@ -170,14 +189,44 @@ $(function()
 	var otherPwd = $get("open_other_pwd");
 	var usePwdInKey = $get("use_pwd_in_key");
 
-	var loadPasswordTimeout = 10000;
-	var openDatabaseRound = 0;
-	var openDatabaseTimeout = 10000;
+	var queryTimeout = 10000;
 	var maxTimeoutWithNoTryAgain = 40000;
+	var retryButton;
+
+	$get("modal_timeout").on("hidden.bs.modal", function() {
+		if(retryButton)
+		{
+			retryButton.click();
+			retryButton = undefined;
+		}
+	});
+	$get("modal_timeout_cancel").on("click", function() {
+		retryButton = undefined;
+	});
+
+	function handleFail(status, error, button, loadingButton) {
+		if(status == "timeout")
+		{
+			queryTimeout = queryTimeout*2;
+			if(queryTimeout <= maxTimeoutWithNoTryAgain)
+				button.click();
+			else
+			{
+				retryButton = button;
+				$get("modal_timeout").modal("show");
+				resetLoading(button, loadingButton);
+			}
+		}
+		else
+		{
+			raiseError(status + ": " + error);
+			resetLoading(button, loadingButton);
+		}
+	}
 
 	function loadPassword() {
 		var btn = $(this);
-		btn.button("loading");
+		var loadingButton = setupLoading(btn);
 		var uuid = btn.data("uuid");
 		var container = btn.parent();
 
@@ -186,7 +235,7 @@ $(function()
 		var otherPwdval = otherPwd.val();
 		var usePwdInKeyVal = usePwdInKey.is(':checked');
 		if (!dbidval || !mainPwdval || (!otherPwdval && !usePwdInKeyVal)) {
-			btn.button('reset');
+			resetLoading(btn, loadingButton);
 			$get("open_tab_a").tab('show');
 			$get("form_open").submit();
 			return;
@@ -203,22 +252,10 @@ $(function()
 			method: 'POST',
 			dataType: 'json',
 			url: 'ajaxopen.php' + ajaxQueryString,
-			timeout: loadPasswordTimeout
+			timeout: queryTimeout
 		})
 			.fail(function(jqxhr, status, error) {
-				if(status == "timeout")
-				{
-					loadPasswordTimeout = loadPasswordTimeout*2;
-					if(loadPasswordTimeout <= maxTimeoutWithNoTryAgain)
-						btn.click();
-					else
-						btn.button('tryagain');
-				}
-				else
-				{
-					raiseError(status + ": " + error);
-					btn.button('reset');
-				}
+				handleFail(status, error, btn, loadingButton);
 			})
 			.done(function(answer) {
 				$get("debugtrace").empty().addClass("hide");
@@ -232,14 +269,14 @@ $(function()
 					raiseError(answer.result);
 				if(answer.debug)
 					$get("debugtrace").removeClass("hide").text("Debug trace:\n" + answer.debug);
-				btn.button('reset');
+				resetLoading(btn, loadingButton);
 			});
 	}
 
 	$get("form_open").on("submit", function()
 	{
 		var button = $(this).find('button[type="submit"]');
-		button.button('loading');
+		var loadingButton = setupLoading(button);
 
 		var ok = true;
 		if(!otherPwd.val() && !usePwdInKey.is(":checked"))
@@ -266,29 +303,12 @@ $(function()
 				method: 'POST',
 				dataType: 'json',
 				url: 'ajaxopen.php' + ajaxQueryString,
-				timeout: openDatabaseTimeout
+				timeout: queryTimeout
 			})
 				.fail(function(jqxhr, status, error) {
 					$get("see_results").empty().addClass("hide");
 					$get("see_alert").show();
-					if(status == 'timeout')
-					{
-						openDatabaseTimeout = openDatabaseTimeout*2;
-						if(openDatabaseTimeout <= maxTimeoutWithNoTryAgain)
-							button.click();
-						else
-						{
-							button.button(openDatabaseRound === 0 ?
-								'tryagain' : 'andagain');
-							openDatabaseRound++;
-						}
-					}
-					else
-					{
-						openDatabaseRound = 0;
-						button.button('reset');
-						raiseError(status + ": " + error);
-					}
+					handleFail(status, error, button, loadingButton);
 				})
 				.done(function(answer) {
 					$get("debugtrace").empty().addClass("hide");
@@ -319,15 +339,11 @@ $(function()
 						if(answer.debug)
 							$get("debugtrace").removeClass("hide").text("Debug trace:\n" + answer.debug);
 					}
-					openDatabaseRound = 0;
-					button.button('reset');
+					resetLoading(button, loadingButton);
 				});
 		}
 		else
-		{
-			openDatabaseRound = 0;
-			button.button('reset');
-		}
+			resetLoading(button, loadingButton);
 		return false;
 	});
 

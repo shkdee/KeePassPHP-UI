@@ -47,8 +47,9 @@ $lang_fr = array(
 	/* LANG_SEE_ENTRY_PASSWORD */ "Mot de passe",
 	/* LANG_SEE_ENTRY_LOAD */ "Voir",
 	/* LANG_TAB_CLOSE_TOOLTIP */ "Fermer la base de données ouverte",
-	/* LANG_OPEN_SEND_TRYAGAIN */ "Essayer de nouveau",
-	/* LANG_OPEN_SEND_ANDAGAIN */ "... et encore",
-	/* LANG_SEE_ENTRY_TRYAGAIN */ "Réessayer"
+	/* LANG_MODAL_TIMEOUT_TITLE */ "C'est long...",
+	/* LANG_MODAL_TIMEOUT_TEXT */ "Le serveur semble mettre du temps à répondre. Cela peut arriver si la base de données de mots de passe est dure à déchiffrer, dans quel cas c'est tout à fait normal et vous devriez juste attendre encore. Mais cela peut aussi signifier que la connexion entre vous et le serveur fonctionne mal. Vous pouvez ré-essayer en attendant plus longtemps, ou annuler.",
+	/* LANG_MODAL_TIMEOUT_TRYAGAIN */ "Ré-essayer",
+	/* LANG_MODAL_TIMEOUT_CANCEL */ "Annuler"
 );
 ?>

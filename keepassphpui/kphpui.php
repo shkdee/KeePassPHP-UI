@@ -53,9 +53,10 @@ abstract class KPHPUI
 	const LANG_SEE_ENTRY_PASSWORD      = 44;
 	const LANG_SEE_ENTRY_LOAD          = 45;
 	const LANG_TAB_CLOSE_TOOLTIP       = 46;
-	const LANG_OPEN_SEND_TRYAGAIN      = 47;
-	const LANG_OPEN_SEND_ANDAGAIN      = 48;
-	const LANG_SEE_ENTRY_TRYAGAIN      = 49;
+	const LANG_MODAL_TIMEOUT_TITLE     = 47;
+	const LANG_MODAL_TIMEOUT_TEXT      = 48;
+	const LANG_MODAL_TIMEOUT_TRYAGAIN  = 49;
+	const LANG_MODAL_TIMEOUT_CANCEL    = 50;
 
 
 	public static $availableLangData = array();

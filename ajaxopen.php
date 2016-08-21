@@ -124,9 +124,10 @@ function visitEntry(\KeePassPHP\Database $db, \KeePassPHP\Entry $entry)
 		. KPHPUI::htmlify(strlen($displayed) > 20 ? substr($displayed, 0, 17) . '...' : $displayed)
 		. ($isHttp ? '</a>' : '</span>') . '</td>'
 		. '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::htmlify($entry->username) . '" /></td>'
-		. '<td id="pwd_' . $uuid . '"><button type="button" class="btn btn-primary passwordLoader" data-uuid="'
-		. $uuid . '" autocomplete="off" data-loading-text="..." data-tryagain-text="'
-		. KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_TRYAGAIN) . '">' . KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_LOAD) . '</button></td></tr>';
+		. '<td id="pwd_' . $uuid . '">'
+		. '<button type="button" class="btn btn-primary passwordLoader" data-uuid="' . $uuid . '">' . KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_LOAD) . '</button>'
+		. '<button type="button" class="btn btn-primary disabled loading-button" disabled="disabled"><span class="spinner">&nbsp;</span></button>'
+		. '</td></tr>';
 }
 
 $answer = new AjaxAnswer();
