@@ -19,6 +19,12 @@ input.verysmall
 	margin-top: 1.5em;
 }
 
+.row-between-tab
+{
+	margin-top: 1em;
+	margin-bottom: -1em;
+}
+
 .loading-button {
 	display: none;
 }

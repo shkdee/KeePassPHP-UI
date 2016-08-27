@@ -57,6 +57,8 @@ abstract class KPHPUI
 	const LANG_MODAL_TIMEOUT_TEXT      = 48;
 	const LANG_MODAL_TIMEOUT_TRYAGAIN  = 49;
 	const LANG_MODAL_TIMEOUT_CANCEL    = 50;
+	const LANG_UNSECURE_TITLE          = 51;
+	const LANG_UNSECURE_TEXT           = 52;
 
 
 	public static $availableLangData = array();
@@ -194,6 +196,20 @@ abstract class KPHPUI
 		return $id >= 0 && $id <= 68
 			? "icons/C" . ($id < 10 ? "0" : "") . $id . ".png"
 			: null;
+	}
+
+	/**
+	 * Returns whether this PHP fscript is accessed through HTTPS.
+	 */
+	public static function isHttps()
+	{
+		return (!empty($_SERVER['HTTPS']) &&
+			strtolower($_SERVER['HTTPS']) !== 'off') ||
+			intval($_SERVER['SERVER_PORT']) === 443 ||
+			(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+				$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ||
+			!empty($_SERVER['HTTP_X_FORWARDED_SSL']) &&
+			$_SERVER['HTTP_X_FORWARDED_SSL'] == 'on');
 	}
 }
 

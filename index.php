@@ -168,6 +168,21 @@ foreach($availableLangs as &$lang)
 					</li>
 					<li role="presentation"><a type="button" id="btn_clean_all" class="close" aria-label="Close" title="<?php echo KPHPUI::l(KPHPUI::LANG_TAB_CLOSE_TOOLTIP); ?>"><span aria-hidden="true">&times;</span></a></li>
 				</ul>
+<?php
+if(!KPHPUI::isHttps()) {
+?>
+				<div class="row row-between-tab">
+					<div class="col-sm-10 col-sm-offset-1">
+						<div class="alert alert-danger alert-dismissible" role="alert"">
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<p class="lead"><?php echo KPHPUI::l(KPHPUI::LANG_UNSECURE_TITLE); ?></p>
+							<p><?php echo KPHPUI::l(KPHPUI::LANG_UNSECURE_TEXT); ?></p>
+						</div>
+					</div>
+				</div>
+<?php
+}
+?>
 				<div class="tab-content">
 					<div role="tabpanel" class="tab-pane fade<?php if($p == "open") echo ' active in'; ?>" id="open">
 						<div class="row">
@@ -270,9 +285,13 @@ foreach($availableLangs as &$lang)
 						</div>
 					</div>
 					<div role="tabpanel" class="tab-pane fade" id="see">
-						<div class="alert alert-warning" id="see_alert">
-							<p class="lead"><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_TITLE); ?></p>
-							<p><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_TEXT); ?> <a href="#open" aria-controls="add" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_LINK); ?></a></p>
+						<div class="row"  id="see_alert">
+							<div class="col-sm-10 col-sm-offset-1">
+								<div class="alert alert-warning">
+									<p class="lead"><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_TITLE); ?></p>
+									<p><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_TEXT); ?> <a href="#open" aria-controls="add" data-toggle="tab"><?php echo KPHPUI::l(KPHPUI::LANG_SEE_NO_DB_LINK); ?></a></p>
+								</div>
+							</div>
 						</div>
 						<div id="see_results" class="hide"></div>
 					</div>
@@ -294,7 +313,7 @@ foreach($availableLangs as &$lang)
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_ERROR_TITLE); ?></h4>
+					<h3 class="modal-title"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_ERROR_TITLE); ?></h3>
 				</div>
 				<div class="modal-body">
 					<p class="alert alert-danger"><?php echo KPHPUI::l(KPHPUI::LANG_MODAL_ERROR_TEXT); ?></p>

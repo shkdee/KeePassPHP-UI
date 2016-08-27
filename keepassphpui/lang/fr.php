@@ -50,6 +50,8 @@ $lang_fr = array(
 	/* LANG_MODAL_TIMEOUT_TITLE */ "C'est long...",
 	/* LANG_MODAL_TIMEOUT_TEXT */ "Le serveur semble mettre du temps à répondre. Cela peut arriver si la base de données de mots de passe est dure à déchiffrer, dans quel cas c'est tout à fait normal et vous devriez juste attendre encore. Mais cela peut aussi signifier que la connexion entre vous et le serveur fonctionne mal. Vous pouvez ré-essayer en attendant plus longtemps, ou annuler.",
 	/* LANG_MODAL_TIMEOUT_TRYAGAIN */ "Ré-essayer",
-	/* LANG_MODAL_TIMEOUT_CANCEL */ "Annuler"
+	/* LANG_MODAL_TIMEOUT_CANCEL */ "Annuler",
+	/* LANG_UNSECURE_TITLE */ "Connexion non sécurisée !",
+	/* LANG_UNSECURE_TEXT */ "Il semble que vous n'êtes pas en train d'accéder à cette page par une connexion sécurisée. Si vous n'êtes pas absolument sûrs de la confidentialité de votre connexion, n'utilisez pas KeePassPHP maintenant ! Essayez plutôt d'y accéder par HTTPS."
 );
 ?>
