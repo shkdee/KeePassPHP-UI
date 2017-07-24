@@ -72,46 +72,71 @@ if($submitted == "add")
 		// every parameter seems to be fine:
 		// include KeePassPHP and try to add the database 
 		require_once KEEPASSPHP_LOCATION;
-		KeePassPHP::init(null, KEEPASSPHP_DEBUG);
-
-		$kphpdbPwd = $usePwdInKey ? KeePassPHP::extractHalfPassword($mainPwd) : $mainPwd;
-		$dbPwd = $usePwdInKey ? $mainPwd : $otherPwd;
-
-		if(!KeePassPHP::existsKphpDB($dbid) || KeePassPHP::removeDatabase($dbid, $kphpdbPwd))
+		if(KPHPUI::isKeePassPHPVersionSupported())
 		{
-			if(KeePassPHP::addDatabaseFromFiles($dbid, $kdbxFile, $dbPwd,
-				$keyFile, $kphpdbPwd, true))
+			KeePassPHP::init(null, KEEPASSPHP_DEBUG);
+
+			$kphpdbPwd = $usePwdInKey ? KeePassPHP::extractHalfPassword($mainPwd) : $mainPwd;
+			$dbPwd = $usePwdInKey ? $mainPwd : $otherPwd;
+
+			if(!KeePassPHP::existsKphpDB($dbid) || KeePassPHP::removeDatabase($dbid, $kphpdbPwd))
 			{
-				$hasAddSuccess = true;
-				$javascriptContent .= "\n$(function() { $('#modal_success').modal('show'); });";
+				class DataFilter extends \KeePassPHP\AllExceptFromPasswordsFilter
+				{
+					public function acceptHistoryEntry(\KeePassPHP\Entry $historyEntry)
+					{
+						return false;
+					}
+
+					public function acceptStrings($key)
+					{
+						return $key == \KeePassPHP\Database::KEY_URL ||
+							$key == \KeePassPHP\Database::KEY_TITLE ||
+							$key == \KeePassPHP\Database::KEY_USERNAME;
+					}
+				}
+
+				if(KeePassPHP::addDatabaseFromFiles($dbid, $kdbxFile, $dbPwd,
+					$keyFile, $kphpdbPwd, true, new DataFilter()))
+				{
+					$hasAddSuccess = true;
+					$javascriptContent .= "\n$(function() { $('#modal_success').modal('show'); });";
+				}
+				else
+				{
+					$visualEffect = false;
+					if(!empty($usePwdInKey))
+					{
+						$visualEffect = true;
+						$formErrors["add_main_pwd"] = "badpwd";
+					}
+					if(!empty($otherPwd))
+					{
+						$visualEffect = true;
+						$formErrors["add_other_pwd"] = "badpwd";
+					}
+					if($keyFileStatus == KPHPUI::GET_FILE_OK)
+					{
+						$visualEffect = true;
+						$formErrors["add_other_keyfile"] = "badpwd";
+					}
+					if(!$visualEffect)
+						$javascriptContent .= "\n$(function() { raiseError(\"" .
+							str_replace("\n", "\\n", addslashes(KeePassPHP::$debugData)) . "\"); });";
+				}
 			}
 			else
-			{
-				$visualEffect = false;
-				if(!empty($usePwdInKey))
-				{
-					$visualEffect = true;
-					$formErrors["add_main_pwd"] = "badpwd";
-				}
-				if(!empty($otherPwd))
-				{
-					$visualEffect = true;
-					$formErrors["add_other_pwd"] = "badpwd";
-				}
-				if($keyFileStatus == KPHPUI::GET_FILE_OK)
-				{
-					$visualEffect = true;
-					$formErrors["add_other_keyfile"] = "badpwd";
-				}
-				if(!$visualEffect)
-					$javascriptContent .= "\n$(function() { raiseError(\"" . str_replace("\n", "\\n", addslashes(KeePassPHP::$debugData)) . "\"); });";	
-			}
+				$formErrors["add_dbid"] = "idexists";
+
+			if(KEEPASSPHP_DEBUG)
+				$javascriptContent .= "\nvar debugTrace = \"" .
+					str_replace("\n", "\\n", addslashes(KeePassPHP::$debugData)) . "\";";
 		}
 		else
-			$formErrors["add_dbid"] = "idexists";
-
-		if(KEEPASSPHP_DEBUG)
-			$javascriptContent .= "\nvar debugTrace = \"" . str_replace("\n", "\\n", addslashes(KeePassPHP::$debugData)) . "\";";
+		{
+			$javascriptContent .= "\n$(function() { raiseError(\"" . KPHPUI::l(KPHPUI::LANG_INTERNAL_ERROR) . "\"); });"
+				. "\nvar debugTrace = \"This version of KeePassPHP is not supported.\";";
+		}
 	}
 }
 

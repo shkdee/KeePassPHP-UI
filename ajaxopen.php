@@ -112,18 +112,18 @@ function visitEntry(\KeePassPHP\Database $db, \KeePassPHP\Entry $entry)
 
 	$uuid = bin2hex(base64_decode($entry->uuid));
 
-	$url = $entry->url;
+	$url = $entry->getStringField(\KeePassPHP\Database::KEY_URL);
 	$protoSep = strpos($url, "://");
 	$proto = $protoSep === false ? null : substr($url, 0, $protoSep);
 	$isHttp = $proto == "http" || $proto == "https";
 	$displayed = $isHttp ? substr($url, $protoSep + 3) : $url;
 
 	return '<tr><td>' . ($icon == null ? '' : '<img src="' . KPHPUI::htmlify($icon) . '" />')
-		. '</td><td>' . KPHPUI::htmlify($entry->title) . '</td>'
+		. '</td><td>' . KPHPUI::htmlify($entry->getStringField(\KeePassPHP\Database::KEY_TITLE)) . '</td>'
 		. '<td>' . ($isHttp ? '<a href="' : '<span title="') . KPHPUI::htmlify($url) . '">'
 		. KPHPUI::htmlify(strlen($displayed) > 20 ? substr($displayed, 0, 17) . '...' : $displayed)
 		. ($isHttp ? '</a>' : '</span>') . '</td>'
-		. '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::htmlify($entry->username) . '" /></td>'
+		. '<td><input type="text" class="col-sm-3 form-control selectOnFocus" value="' . KPHPUI::htmlify($entry->getStringField(\KeePassPHP\Database::KEY_USERNAME)) . '" /></td>'
 		. '<td id="pwd_' . $uuid . '">'
 		. '<button type="button" class="btn btn-primary passwordLoader" data-uuid="' . $uuid . '">' . KPHPUI::l(KPHPUI::LANG_SEE_ENTRY_LOAD) . '</button>'
 		. '<button type="button" class="btn btn-primary disabled loading-button" disabled="disabled"><span class="spinner">&nbsp;</span></button>'
@@ -146,37 +146,43 @@ elseif(!$usePwdInKey && empty($otherPwd))
 else
 {
 	require_once KEEPASSPHP_LOCATION;
-	KeePassPHP::init(null, KEEPASSPHP_DEBUG);
-
-	if(KeePassPHP::existsKphpDB($dbid))
+	if(KPHPUI::isKeePassPHPVersionSupported())
 	{
-		$uuid = KPHPUI::getPost("uuid");
-		$getPasswords = !empty($uuid);
-		$db = KeePassPHP::getDatabase($dbid,
-			$usePwdInKey ? KeePassPHP::extractHalfPassword($mainPwd) : $mainPwd,
-			$usePwdInKey ? $mainPwd : $otherPwd,
-			$getPasswords);
-		if($db != null)
+		KeePassPHP::init(null, KEEPASSPHP_DEBUG);
+		if(KeePassPHP::existsKphpDB($dbid))
 		{
-			if($getPasswords)
+			$uuid = KPHPUI::getPost("uuid");
+			$getPasswords = !empty($uuid);
+			$db = KeePassPHP::getDatabase($dbid,
+				$usePwdInKey ? KeePassPHP::extractHalfPassword($mainPwd) : $mainPwd,
+				$usePwdInKey ? $mainPwd : $otherPwd,
+				$getPasswords);
+			if($db != null)
 			{
-				$pwd = $db->getPassword(base64_encode(hex2bin($uuid)));
-				if($pwd != null)
-					$answer->set(AjaxAnswer::SUCCESS, '<input type="text" class="verysmall selectOnFocus form-control" value="' . KPHPUI::htmlify($pwd) . '" style="font-size:3px !important;"/>');
+				if($getPasswords)
+				{
+					$pwd = $db->getPassword(base64_encode(hex2bin($uuid)));
+					if($pwd != null)
+						$answer->set(AjaxAnswer::SUCCESS, '<input type="text" class="verysmall selectOnFocus form-control" value="' . KPHPUI::htmlify($pwd) . '" style="font-size:3px !important;"/>');
+					else
+						$answer->set(AjaxAnswer::PASSWORD_NOT_FOUND, '<span class="label label-danger">' . KPHPUI::l(KPHPUI::LANG_SEE_PWD_DOES_NOT_EXIST) . '</span>');
+				}
 				else
-					$answer->set(AjaxAnswer::PASSWORD_NOT_FOUND, '<span class="label label-danger">' . KPHPUI::l(KPHPUI::LANG_SEE_PWD_DOES_NOT_EXIST) . '</span>');
+					$answer->set(AjaxAnswer::SUCCESS, visitDatabase($db));
 			}
 			else
-				$answer->set(AjaxAnswer::SUCCESS, visitDatabase($db));
+				$answer->set(AjaxAnswer::BAD_PASSWORD);
 		}
 		else
-			$answer->set(AjaxAnswer::BAD_PASSWORD);
+			$answer->set(AjaxAnswer::NO_SUCH_ID);
+		if(KeePassPHP::$debug && !empty(KeePassPHP::$debugData))
+			$answer->setDebug(KeePassPHP::$debugData);
 	}
 	else
-		$answer->set(AjaxAnswer::NO_SUCH_ID);
-
-	if(KeePassPHP::$debug && !empty(KeePassPHP::$debugData))
-		$answer->setDebug(KeePassPHP::$debugData);
+	{
+		$answer->set(AjaxAnswer::FAIL, KPHPUI::l(KPHPUI::LANG_INTERNAL_ERROR));
+		$answer->setDebug("The version of KeePassPHP is not supported.");
+	}
 }
 
 $answer->send();

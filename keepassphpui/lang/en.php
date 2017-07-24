@@ -29,7 +29,7 @@ $lang_en = array(
 	/* LANG_ABOUT_TITLE */ "Welcome!",
 	/* LANG_ABOUT_TEXT */ "KeePassPHP is a port of <a href=\"http://keepass.info\">KeePass</a> in PHP. It can store and read KeePass password databases, so that you can access your passwords on any device, just through a Web browser.",
 	/* LANG_MODAL_ERROR_TITLE */ "Err, this is embarassing.",
-	/* LANG_MODAL_ERROR_TEXT */ "An internal error occured. KeePassPHP generated the following information:",
+	/* LANG_MODAL_ERROR_TEXT */ "An internal error occurred. KeePassPHP generated the following information:",
 	/* LANG_MODAL_CLOSE */ "Close",
 	/* LANG_MODAL_SUCCESS_TITLE */ "Password database stored!",
 	/* LANG_MODAL_SUCCESS_TEXT */ "The password database has been successfully added. You can now read it with the ID and password(s) you gave to store it.",
@@ -38,7 +38,7 @@ $lang_en = array(
 	/* LANG_FORM_ERROR_NOSUCHID */ "The given ID does not exist.",
 	/* LANG_FORM_ERROR_PADPWD */ "The given password seems incorrect.",
 	/* LANG_FORM_ERROR_FILETOOBIG */ "The file is too big.",
-	/* LANG_FORM_ERROR_FILEERROR */ "An error occured when uploading the file.",
+	/* LANG_FORM_ERROR_FILEERROR */ "An error occurred when uploading the file.",
 	/* LANG_FORM_ERROR_IDEXISTS */ "This ID already exists, and the given password is not this ID's password.",
 	/* LANG_SEE_PWD_DOES_NOT_EXIST */ "Error",
 	/* LANG_SEE_ENTRY_TITLE */ "Title",
@@ -52,6 +52,7 @@ $lang_en = array(
 	/* LANG_MODAL_TIMEOUT_TRYAGAIN */ "Try again",
 	/* LANG_MODAL_TIMEOUT_CANCEL */ "Cancel",
 	/* LANG_UNSECURE_TITLE */ "Untrusted connection!",
-	/* LANG_UNSECURE_TEXT */ "It seems that you are not accessing this page through a trusted connection. If you are not absolutely confident in the confidentiality of your connection, do not use KeePassPHP now! Instead, try to access it through HTTPS."
+	/* LANG_UNSECURE_TEXT */ "It seems that you are not accessing this page through a trusted connection. If you are not absolutely confident in the confidentiality of your connection, do not use KeePassPHP now! Instead, try to access it through HTTPS.",
+	/* LANG_INTERNAL_ERROR */ "An internal error occurred."
 );
 ?>

@@ -52,6 +52,7 @@ $lang_de = array(
 	/* LANG_MODAL_TIMEOUT_TRYAGAIN */ "Versuche erneut",
 	/* LANG_MODAL_TIMEOUT_CANCEL */ "Cancel",
 	/* LANG_UNSECURE_TITLE */ "Untrusted connection!",
-	/* LANG_UNSECURE_TEXT */ "It seems that you are not accessing this page through a trusted connection. If you are not absolutely confident in the confidentiality of your connection, do not use KeePassPHP now! Instead, try to access it through HTTPS."
+	/* LANG_UNSECURE_TEXT */ "It seems that you are not accessing this page through a trusted connection. If you are not absolutely confident in the confidentiality of your connection, do not use KeePassPHP now! Instead, try to access it through HTTPS.",
+	/* LANG_INTERNAL_ERROR */ "An internal error occurred."
 );
 ?>

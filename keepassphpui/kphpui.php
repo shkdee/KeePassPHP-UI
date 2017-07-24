@@ -59,6 +59,7 @@ abstract class KPHPUI
 	const LANG_MODAL_TIMEOUT_CANCEL    = 50;
 	const LANG_UNSECURE_TITLE          = 51;
 	const LANG_UNSECURE_TEXT           = 52;
+	const LANG_INTERNAL_ERROR          = 53;
 
 
 	public static $availableLangData = array();
@@ -210,6 +211,15 @@ abstract class KPHPUI
 				$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ||
 			!empty($_SERVER['HTTP_X_FORWARDED_SSL']) &&
 			$_SERVER['HTTP_X_FORWARDED_SSL'] == 'on');
+	}
+
+	/**
+	 * Returns whether the version of the loaded KeePassPHP is supported.
+	 */
+	public static function isKeePassPHPVersionSupported()
+	{
+		return defined("\KeePassPHP\KeePassPHP::API_VERSION") &&
+			\KeePassPHP\KeePassPHP::API_VERSION >= 1;
 	}
 }
 

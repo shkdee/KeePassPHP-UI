@@ -52,6 +52,7 @@ $lang_fr = array(
 	/* LANG_MODAL_TIMEOUT_TRYAGAIN */ "Ré-essayer",
 	/* LANG_MODAL_TIMEOUT_CANCEL */ "Annuler",
 	/* LANG_UNSECURE_TITLE */ "Connexion non sécurisée !",
-	/* LANG_UNSECURE_TEXT */ "Il semble que vous n'êtes pas en train d'accéder à cette page par une connexion sécurisée. Si vous n'êtes pas absolument sûrs de la confidentialité de votre connexion, n'utilisez pas KeePassPHP maintenant ! Essayez plutôt d'y accéder par HTTPS."
+	/* LANG_UNSECURE_TEXT */ "Il semble que vous n'êtes pas en train d'accéder à cette page par une connexion sécurisée. Si vous n'êtes pas absolument sûrs de la confidentialité de votre connexion, n'utilisez pas KeePassPHP maintenant ! Essayez plutôt d'y accéder par HTTPS.",
+	/* LANG_INTERNAL_ERROR */ "Une erreur interne est survenue."
 );
 ?>
