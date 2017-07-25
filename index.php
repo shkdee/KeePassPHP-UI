@@ -164,7 +164,7 @@ $javascriptContent .= "};";
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?php echo KPHPUI::l(KPHPUI::LANG_PAGE_TITLE); ?></title>
-	<link rel="stylesheet" href="css/bootstrap.min.css?3.3.6" />
+	<link rel="stylesheet" href="css/bootstrap.min.css?3.3.7" />
 	<link rel="stylesheet" href="css/main.css?1.0" />
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -390,8 +390,8 @@ if($hasAddSuccess) {
 <?php
 }
 ?>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<script src="js/bootstrap.min.js?3.3.6"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js?3.3.7"></script>
 	<script type="text/javascript"><?php echo $javascriptContent; ?></script>
 	<script src="js/main.js?1.2"></script>
 </body>
