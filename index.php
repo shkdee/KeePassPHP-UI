@@ -63,8 +63,8 @@ if($submitted == "add")
 	{
 		$ok = false;
 		$formErrors["add_kdbx_file"] = $kdbxFileStatus == KPHPUI::GET_FILE_EMPTY
-			? "empty" : $kdbxFileStatus == KPHPUI::GET_FILE_TOO_BIG
-			? "filetoobig" : "fileerror";
+			? "empty" : ($kdbxFileStatus == KPHPUI::GET_FILE_TOO_BIG
+			? "filetoobig" : "fileerror");
 	}
 
 	if($ok)
